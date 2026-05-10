@@ -1,0 +1,8 @@
+Initial energy = 3.600000
+Final   energy = 2.282578
+Energy drift   = 1.3174e+00
+Initial norm   = 1.000000
+Final   norm   = 1.000000
+Initial <x>    = 2.0000
+Initial <p>    = 0.9986
+Saved: summary.png, energies.npy

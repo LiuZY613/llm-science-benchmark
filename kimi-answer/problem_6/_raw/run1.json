@@ -1,0 +1,47 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "api_error_status": null,
+  "duration_ms": 223692,
+  "duration_api_ms": 297133,
+  "num_turns": 1,
+  "result": "答案是 $\\dfrac{74}{99}$。\n\n**推导思路：**\n\n把问题拆成三种互斥情况，看 1 号乘客的行为：\n\n1. **1 号坐 1 号座位**（概率 $\\frac12$）。此时所有人都能坐回自己的座位，100 号必然成功。\n\n2. **1 号直接坐 100 号座位**（概率 $\\frac12 \\times \\frac1{99} = \\frac1{198}$）。100 号一上来就被占了，必然失败。\n\n3. **1 号坐某个中间座位 $k$（$2\\le k\\le 99$）**（概率 $\\frac12 \\times \\frac{98}{99} = \\frac{49}{99}$）。  \n   这时乘客 $2,\\dots,k-1$ 都能坐回自己的座位，轮到 $k$ 号时发现被占，必须从剩余空座位中随机选。\n\n   关键观察：从 $k$ 号开始，每次有人被迫随机选座时，只要 **1 号座位**和**100 号座位**还空着，它们对选座者而言就是完全对称的——每个空座位被选中的概率相等。因此在这类“子过程”中，最终 100 号座位在 1 号座位之前被随机占走的概率恰好是 $\\frac12$。\n\n于是总概率为：\n\n$$\nP = \\frac12 \\cdot 1 \\;+\\; \\frac1{198}\\cdot 0 \\;+\\; \\frac{49}{99}\\cdot\\frac12\n   = \\frac12 + \\frac{49}{198}\n   = \\frac{99+49}{198}\n   = \\frac{148}{198}\n   = \\boxed{\\frac{74}{99}}\n$$\n\n（$74=2\\times 37,\\; 99=3^2\\times 11$，已是最简分数。）",
+  "stop_reason": "end_turn",
+  "session_id": "ce32232f-07e0-4326-8fd2-10c5ec61c8a3",
+  "total_cost_usd": 0.38591999999999993,
+  "usage": {
+    "input_tokens": 4084,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 21760,
+    "output_tokens": 10901,
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "kimi-k2.6": {
+      "inputTokens": 4473,
+      "outputTokens": 14107,
+      "cacheReadInputTokens": 21760,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.38591999999999993,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "uuid": "959acad0-babd-4047-8cc3-a0a6f9d012cc"
+}

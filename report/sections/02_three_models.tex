@@ -1,0 +1,95 @@
+\section{三个模型是什么}
+\label{sec:three_models}
+
+本节客观介绍报告涉及的三个模型，所有事实均来自官方文档或公开模型卡。
+
+\subsection{磐石 100（中国科学院 / S1-Base 系列）}
+
+\textbf{磐石 100} 是中国科学院自动化研究所等单位联合研发的科学领域大模型体系，于 2026 年 4 月正式亮相。其底座为\textbf{磐石$\cdot$科学基础大模型（S1-Base）}，提供三种参数规模：S1-Base-8B、S1-Base-32B、S1-Base-671B。
+
+根据 S1-Base 在国际开源社区 Hugging Face 上发布的官方模型卡，\textbf{S1-Base-671B 训练自 DeepSeek-R1-671B}，S1-Base-8B 与 S1-Base-32B 分别训练自 Qwen3-8B 与 Qwen3-32B\footnote{来源：Hugging Face 官方模型卡 \url{https://huggingface.co/ScienceOne-AI/S1-Base-671B}。}。微调使用了 1.7 亿篇科学论文与数百万条高质量科学推理数据，并基于高中、本科、研究生级别课程做分阶段训练。
+
+\textbf{所有版本上下文长度统一为 32k token}（约 3--5 万字），最大输出未在公开文档中披露。模型本身以 Apache 2.0 协议开源\footnote{该模型在 Hugging Face 上的月下载量约 24 次，反映出在国际开源社区的实际使用规模有限。}。配套提供\textbf{文献罗盘}（接入 1.7 亿篇科技文献）与\textbf{工具调度台}（300+ 科学计算工具）两个智能体应用，已在中科院 50 余家单位、100+ 个科研场景部署。
+
+\subsection{DeepSeek V4 Pro（深度求索 / 国内）}
+
+\textbf{DeepSeek V4 Pro} 由杭州深度求索公司研发，于 2026 年发布。采用异构混合专家（MoE）架构，\textbf{总参数 1.6 万亿、活跃参数 49 亿}，预训练数据规模达 \textbf{32 万亿 token}（量级远超磐石所基于的 R1 时代）。
+
+支持\textbf{快速、中度推理、深度推理}三档模式，可由用户按任务难度动态切换。\textbf{上下文长度为 100 万 token（约 100 万字以上）}，最大单次输出 38.4 万 token。
+
+API 在国内可直接调用，按使用量计费，标价：
+
+\begin{itemize}
+\item 输入（首次未命中缓存）：\textbf{¥3 / 百万 token}
+\item 输入（命中缓存）：\textbf{¥0.1 / 百万 token}（永久价格，已较首发价下调 90\%）
+\item 输出：\textbf{¥6 / 百万 token}
+\end{itemize}
+
+当前另有限时 2.5 折优惠，截至 2026 年 5 月 31 日\footnote{即在原价基础上额外打 2.5 折，使输入 cache miss 价格降至 ¥0.75 / 百万 token，输出降至 ¥1.5 / 百万 token。详见 \url{https://api-docs.deepseek.com/quick_start/pricing}。}。\textbf{合规性方面，调用走境内服务器，符合数据出境管理要求。}
+
+\subsection{Claude Opus 4.7（Anthropic / 美国）}
+
+\textbf{Claude Opus 4.7} 由美国 Anthropic 公司研发，于 2026 年发布，是国际公认在编程、长文档分析、复杂推理等高难度任务上排名第一梯队的模型。
+
+\textbf{上下文长度 100 万 token（约 100 万字以上）}，最大单次输出 12.8 万 token。支持文本与图像（最大 ~3.75 兆像素）输入。
+
+API 仅以美元计价：
+
+\begin{itemize}
+\item 输入：\textbf{\$5 / 百万 token}（约 ¥36，按 1 美元 = 7.2 元换算）
+\item 输出：\textbf{\$25 / 百万 token}（约 ¥180）
+\end{itemize}
+
+启用提示缓存可节省最高 \textbf{90\%} 的输入费用，启用批处理可节省 \textbf{50\%} 费用，常规科研使用场景下实际费用通常远低于标价。
+
+\textbf{合规性方面}：Anthropic 服务在中国境内不可直接访问，需通过合规海外节点调用。本报告建议\textbf{仅将 Claude 用于非涉密、纯学术性任务}（如开源论文写作辅助、英文文献处理、代码调试等），涉密任务一律走 DeepSeek 境内 API 或磐石内网部署。
+
+\subsection{关键参数三方对比}
+
+下表汇总了三个模型在领导决策时最需关心的几个维度。\textbf{红色高亮}标注了磐石 100 与商业 API 之间存在数量级差距的项。
+
+\vspace{4pt}
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\setlength{\tabcolsep}{6pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}>{\bfseries\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}p{4.5cm} >{\raggedright\arraybackslash}p{4.5cm}@{}}
+\toprule
+\rowcolor{primary!15}
+\textbf{维度} & \textbf{磐石 100} & \textbf{DeepSeek V4 Pro} & \textbf{Claude Opus 4.7} \\
+\midrule
+研发方 & 中科院自动化所等 & 深度求索（杭州，国内）& Anthropic（美国）\\
+\midrule
+发布时间 & 2026 年 4 月 & 2026 年 & 2026 年 \\
+\midrule
+模型来源 & 基于 DeepSeek-R1 / Qwen3 微调 & 自研（V4 系列新一代）& 自研（Opus 4 系列）\\
+\midrule
+\makecell[l]{一次能记多少字\\\small（最关键指标）}
+& \cellcolor{accent!18}\textbf{约 3--5 万字} & 约 100 万字 & 约 100 万字 \\
+\midrule
+训练资料量 & 微调 1.7 亿篇论文 + 数百万样本 & 预训练 32 万亿 token & 未公开（业界估计同量级）\\
+\midrule
+是否对外提供 API & \cellcolor{accent!18}否（仅院内部署）& 是（境内可直接调用）& 是（需海外合规节点）\\
+\midrule
+单价（输入/输出）& —— & ¥3 / ¥6 每百万字符* & ¥36 / ¥180 每百万字符* \\
+\midrule
+适用场景 & 内网涉密、特定学科工具调用 & 通用科研任务、长文档处理 & 高难度科研、英文写作、代码 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\vspace{-6pt}
+{\small\itshape * 此处的"百万字符"为面向读者的口径，实际计费单位为 100 万 token。token 与字符的换算系数因模型 tokenizer 而异，中文场景下 1 token 约对应 1.0--1.5 个汉字。详细成本测算见第~\ref{sec:cost} 节。}
+
+\vspace{6pt}
+\begin{keypoint}
+\sffamily\textbf{关键事实}\\[3pt]
+\normalfont
+\begin{itemize}[leftmargin=18pt,topsep=2pt]
+\item 磐石 100 的最强版本（671B）所基于的底座 DeepSeek-R1，已被原厂商深度求索迭代到 V4 Pro，参数、上下文、效率全面更新换代。
+\item 磐石的工作记忆约 3--5 万字，DeepSeek V4 Pro 与 Claude Opus 4.7 均为 \textbf{100 万字以上}——后者是前者的 \textbf{30 倍以上}。这一差距在长文献处理、跨文件分析等核心科研场景中是决定性的。
+\item 三者关系：磐石适合内网/涉密场景；DeepSeek V4 Pro 是国内合规的通用主力；Claude Opus 4.7 用于难度最高的非涉密任务。
+\end{itemize}
+\end{keypoint}

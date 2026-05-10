@@ -1,0 +1,113 @@
+% =============================================================
+%  报告：为什么我们应该开放 DeepSeek / Claude API 报销
+%  编译命令：xelatex -interaction=nonstopmode report.tex
+%  （需要二次编译以生成正确目录与交叉引用）
+% =============================================================
+\documentclass[12pt,a4paper]{ctexart}
+
+% ---------- 页面 ----------
+\usepackage[margin=2.4cm,top=2.6cm,bottom=2.6cm]{geometry}
+
+% ---------- 字体 ----------
+\setCJKmainfont{SimSun}
+\setCJKsansfont{SimHei}
+\setCJKmonofont{FangSong}
+
+% ---------- 颜色 ----------
+\usepackage[dvipsnames,table]{xcolor}
+\definecolor{primary}{HTML}{1F3A68}     % 深蓝
+\definecolor{accent}{HTML}{C0392B}      % 强调红
+\definecolor{softgray}{HTML}{F2F2F2}    % 表格背景灰
+\definecolor{linkblue}{HTML}{2E5C9A}
+
+% ---------- 表格 ----------
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{makecell}
+\renewcommand{\arraystretch}{1.25}
+
+% ---------- 图形 ----------
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% ---------- 排版 ----------
+\usepackage{enumitem}
+\setlist{itemsep=2pt,topsep=4pt}
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{primary}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\sffamily\color{primary}}{\thesubsection}{0.5em}{}
+
+% ---------- 链接 ----------
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=primary,
+  urlcolor=linkblue,
+  citecolor=primary,
+}
+
+% ---------- 页眉页脚 ----------
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{primary}DeepSeek / Claude API 报销建议报告}
+\fancyhead[R]{\small\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------- 自定义环境：占位符（用于 benchmark 图表）----------
+\newtcolorbox{placeholder}[1][]{%
+  colback=softgray, colframe=accent, boxrule=0.6pt,
+  arc=2pt, fonttitle=\bfseries\sffamily,
+  title=占位符\,/\,Placeholder, #1
+}
+
+% ---------- 自定义环境：核心结论框 ----------
+\newtcolorbox{keypoint}{%
+  colback=primary!8, colframe=primary, boxrule=0.6pt,
+  arc=2pt, left=8pt,right=8pt,top=6pt,bottom=6pt
+}
+
+% =============================================================
+\title{
+  \vspace*{-1.5cm}
+  \sffamily\color{primary}\textbf{为什么我们应该开放\\[2pt]
+  DeepSeek / Claude API 报销}\\[12pt]
+  \large\color{black!70}\normalfont
+  ——— 三个大模型的对比分析与中科院科研经费政策建议
+}
+\author{}
+\date{\today}
+
+% =============================================================
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\vfill
+\begin{keypoint}
+\sffamily\textbf{阅读指引}\\[3pt]
+本报告共 6 节，约 11 页。如时间有限，仅阅读\textbf{第~1 节执行摘要（1 页）}与\textbf{第~6 节建议（1 页）}已可获得全部核心结论。第 2--5 节为数据与论证支撑。
+\end{keypoint}
+\vfill
+
+\newpage
+\setcounter{page}{1}
+
+% =============================================================
+\input{sections/01_summary}
+
+\input{sections/02_three_models}
+
+\input{sections/03_context_window}
+
+\input{sections/04_benchmarks}
+
+\input{sections/05_cost}
+
+\input{sections/06_recommendations}
+
+\end{document}

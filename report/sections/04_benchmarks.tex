@@ -1,0 +1,150 @@
+\section{实测能力对比：五个对比 demo}
+\label{sec:benchmarks}
+
+本节通过 \textbf{5 个贴近科研日常的实测任务}，对比磐石 100、DeepSeek V4 Pro、Claude Opus 4.7 三者的实际表现。每个 demo 由本报告的作者团队\textbf{以同一份 prompt 同时投喂三个模型}，记录原始输出，按统一标准打分。
+
+\medskip
+\textbf{评分通则}：每个 demo 满分 10 分。无法完成（拒绝、报错、严重截断、严重事实错误）一律 0 分。完全完成且质量高记 9--10 分。中间区间按完成度递减。
+
+\medskip
+\textbf{说明}：本节结果与原始输出截图\textbf{将在实测完成后回填}。当前版本所有评分与图表均为占位符，仅供框架审阅。
+
+% =============================================================
+\subsection{Demo 4.1 — 长文档摘要}
+
+\textbf{任务}：将一份约 100 页（约 8 万字）的政府/科研机构公开报告完整投喂给模型，要求按章节生成结构化摘要，并提取与"AI / 数字化"主题相关的具体数据，指出报告中前后矛盾之处。
+
+\textbf{考点}：是否能装下完整文档、是否能跨章节交叉引用、是否会遗漏文档后半部分。
+
+\begin{placeholder}[title={占位符 4.1：长文档摘要原始输出三栏对比}]
+\vspace{1.2cm}
+\centering\textit{此处将放置三个模型对同一份长文档生成的摘要原文片段（截图或文本），\\
+每栏配评分细则与得分。预计占用约 8\,cm 高度。}
+\vspace{1.2cm}
+\end{placeholder}
+
+\textbf{占位符结论}：\textit{[待回填]}
+
+% =============================================================
+\subsection{Demo 4.2 — 多文件交叉分析}
+
+\textbf{任务}：同时投喂 3 份相关材料（如一个项目的立项书、中期报告、结题报告，或三家供应商的报价 + 技术方案），要求找出口径不一致、技术参数矛盾、推荐最优方案。总输入约 15 万字。
+
+\textbf{考点}：能否同时装下多个文档，能否做跨文档比对推理。
+
+\begin{placeholder}[title={占位符 4.2：多文件交叉分析输出三栏对比}]
+\vspace{1.2cm}
+\centering\textit{此处将放置三个模型对同一组多文件输入产生的对比表，\\
+含每模型识别出的矛盾项数量、推荐方案合理性评分。}
+\vspace{1.2cm}
+\end{placeholder}
+
+\textbf{占位符结论}：\textit{[待回填]}
+
+% =============================================================
+\subsection{Demo 4.3 — 复杂指令遵循}
+
+\textbf{任务}：给三个模型同一段指令（10 条具体约束），要求生成一份 1500--1800 字的工作汇报材料。约束含字数、段落数、引用文件、行文风格、禁用词、编号规范等多项硬指标。
+
+\textbf{考点}：能否同时满足多项硬约束，是否会遗漏其中若干条。\textbf{此 demo 与 context 长度无关，纯粹考察"听懂复杂要求"的能力}。
+
+\textbf{评分方式}：逐条 checklist，每满足 1 条得 1 分，共 10 条满分 10 分。
+
+\begin{placeholder}[title={占位符 4.3：10 项约束打勾打叉 checklist}]
+\vspace{0.5cm}
+\centering\itshape\small
+\resizebox{0.9\textwidth}{!}{%
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{6.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{2cm} >{\centering\arraybackslash}p{1.5cm}@{}}
+\toprule
+约束项 & 磐石 & DeepSeek & Claude \\ \midrule
+1. 字数 1500--1800 & ?? & ?? & ?? \\
+2. 分 5 段 & ?? & ?? & ?? \\
+3. 引用 2 个相关文件名 & ?? & ?? & ?? \\
+4. 第 4 段含具体案例 + 量化指标 & ?? & ?? & ?? \\
+5. 末段 3 条建议（动词开头）& ?? & ?? & ?? \\
+6. 禁用空话词 & ?? & ?? & ?? \\
+7. 全文第三人称 & ?? & ?? & ?? \\
+8. 不出现英文单词 & ?? & ?? & ?? \\
+9. 段落用一二三四五编号 & ?? & ?? & ?? \\
+10. 文末 50 字执行摘要 & ?? & ?? & ?? \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{0.4cm}
+\end{placeholder}
+
+\textbf{占位符结论}：\textit{[待回填]}
+
+% =============================================================
+\subsection{Demo 4.4 — 文献参考审核}
+
+\textbf{任务}：提供一段含有 10 条文献引用的科研段落（其中部分引用为真实论文、部分为 AI 风格的虚构条目，混合编排），要求模型逐条核实每条引用是否真实存在、引用信息（作者、年份、刊物）是否准确。
+
+\textbf{考点}：模型是否会"将看似合理的虚构引用判定为真"（典型 AI 幻觉），以及对真实文献信息的准确度。\textbf{这是科研场景下最危险的 AI 失败模式之一}——错误引用直接污染论文质量。
+
+\textbf{评分方式}：每条引用判断正确 1 分，共 10 条满分 10 分。
+
+\begin{placeholder}[title={占位符 4.4：10 条文献逐条核验结果}]
+\vspace{1cm}
+\centering\itshape\small 此处将放置 10 条文献的真实/虚构标签，\\
+以及三个模型各自的判断结果与得分。
+\vspace{1cm}
+\end{placeholder}
+
+\textbf{占位符结论}：\textit{[待回填]}
+
+% =============================================================
+\subsection{Demo 4.5 — 单篇 arxiv 论文综述生成}
+
+\textbf{任务}：选取一篇 arxiv 上长度约 4 万字（含附录）的较新论文，投喂全文，要求模型阅读后输出一段 600--800 字的中文综述，覆盖：(1) 研究问题；(2) 方法贡献；(3) 主要实验结论；(4) 与已有工作的差异。
+
+\textbf{考点}：是否能完整读完论文（直接挑战磐石 32k 上限）、是否能准确提取四个维度的内容、是否会编造论文中不存在的"贡献"。
+
+\textbf{评分方式}：4 个维度每项 0--2 分（覆盖完整且准确 2 分，部分准确 1 分，缺失或错误 0 分），加总 8 分；额外 2 分为"无幻觉"奖励——若综述中出现论文未提到的内容则扣完。
+
+\begin{placeholder}[title={占位符 4.5：三模型综述输出对比 + 评分}]
+\vspace{1.2cm}
+\centering\itshape 此处将放置三个模型对同一篇 arxiv 论文生成的综述全文，\\
+逐项打分，并标注幻觉点。
+\vspace{1.2cm}
+\end{placeholder}
+
+\textbf{占位符结论}：\textit{[待回填]}
+
+% =============================================================
+\subsection{五个 demo 综合得分汇总}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{6cm} >{\centering\arraybackslash}p{2.5cm} >{\centering\arraybackslash}p{3cm} >{\centering\arraybackslash}p{3cm}@{}}
+\toprule
+\rowcolor{primary!15}
+\textbf{Demo} & \textbf{磐石 100} & \textbf{DeepSeek V4 Pro} & \textbf{Claude Opus 4.7} \\
+\midrule
+4.1 长文档摘要 & \textit{?/10} & \textit{?/10} & \textit{?/10} \\
+4.2 多文件交叉分析 & \textit{?/10} & \textit{?/10} & \textit{?/10} \\
+4.3 复杂指令遵循 & \textit{?/10} & \textit{?/10} & \textit{?/10} \\
+4.4 文献参考审核 & \textit{?/10} & \textit{?/10} & \textit{?/10} \\
+4.5 论文综述生成 & \textit{?/10} & \textit{?/10} & \textit{?/10} \\
+\midrule
+\rowcolor{primary!8}
+\textbf{合计 / 50} & \textit{?/50} & \textit{?/50} & \textit{?/50} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{placeholder}[title={占位符：三模型总分柱状图}]
+\vspace{1.5cm}
+\centering\itshape 此处将放置三模型综合得分柱状图（横轴为模型，纵轴为 0--50 总分），\\
+直观对比能力差距。
+\vspace{1.5cm}
+\end{placeholder}
+
+\begin{keypoint}
+\sffamily\textbf{本节结论（待数据回填后定稿）}\\[3pt]
+\normalfont
+\textit{基于上述 5 个对比 demo 的实测结果——\textbf{[占位符：填入两至三句关键发现]}——可以判定：磐石 100 在科研一线高频任务上，性能与商业 API 存在显著差距，无法满足通用科研场景的需要。}
+\end{keypoint}

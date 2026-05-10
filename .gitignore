@@ -1,0 +1,22 @@
+# API keys (never commit)
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.pdf
+*.synctex.gz
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temp
+runs/
+_report/
+%TEMP%/bench-*

@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benchmark 03 · 引用核查 — 五模型对比</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+
+<style>
+:root{
+  --primary:#1F3A68;
+  --primary-light:#2E5C9A;
+  --accent:#C0392B;
+  --ok:#1F7A3D;
+  --warn:#B8860B;
+  --bad:#9C2A2A;
+  --bg:#FAFBFC;
+  --card:#FFFFFF;
+  --soft:#F2F4F7;
+  --border:#E1E5EA;
+  --text:#1F2937;
+  --muted:#6B7280;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Source Han Sans CN", Roboto, sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.65; font-size:15px;
+}
+a{color:var(--primary-light);text-decoration:none}
+a:hover{text-decoration:underline}
+
+nav.top{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,0.95); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border); padding:10px 20px;
+}
+nav.top .inner{ max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap; }
+nav.top .brand{ font-weight:600;color:var(--primary);font-size:14px;letter-spacing:.3px; }
+nav.top .links{display:flex;gap:6px;flex-wrap:wrap}
+nav.top a.anchor{ padding:4px 10px;border-radius:14px;font-size:13px;color:var(--muted); }
+nav.top a.anchor:hover{background:var(--soft);color:var(--primary);text-decoration:none}
+
+.hero{ max-width:1200px;margin:0 auto;padding:48px 24px 24px; }
+.hero h1{ font-size:32px;color:var(--primary);margin:0 0 8px;font-weight:700;letter-spacing:-.5px; }
+.hero .subtitle{ color:var(--muted);font-size:16px;margin-bottom:18px; }
+.hero .meta-grid{ display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px; }
+.hero .meta{ background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px; }
+.hero .meta .label{font-size:12px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.hero .meta .value{font-size:14px;color:var(--text);font-weight:500}
+.hero .meta .value code{background:var(--soft);padding:1px 6px;border-radius:3px;font-size:12.5px}
+
+section{ max-width:1200px;margin:0 auto;padding:32px 24px;border-top:1px solid var(--border); }
+section.no-border{border-top:none}
+section h2{ color:var(--primary);font-size:24px;margin:0 0 16px;font-weight:700; }
+section h2 .tag{
+  display:inline-block;background:var(--soft);color:var(--muted);
+  font-size:13px;font-weight:500;padding:2px 10px;border-radius:12px;margin-left:10px;vertical-align:middle;
+}
+section h3{ color:var(--primary);font-size:17px;margin:18px 0 8px;font-weight:600; }
+
+table.summary{
+  width:100%;border-collapse:collapse;background:var(--card);
+  border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:14px;
+}
+table.summary th, table.summary td{ padding:10px 14px;text-align:center;border-bottom:1px solid var(--border); }
+table.summary th{ background:var(--primary);color:#fff;font-weight:600;font-size:13px;letter-spacing:.3px; }
+table.summary tr:last-child td{border-bottom:none}
+table.summary td.model{ text-align:left;font-weight:600;color:var(--primary); }
+table.summary td.model .sub{font-weight:400;color:var(--muted);font-size:12px}
+table.summary td.score-ok{color:var(--ok);font-weight:600}
+table.summary td.score-zero{color:var(--bad);font-weight:600}
+table.summary td.score-partial{color:var(--warn);font-weight:600}
+table.summary td.total{background:var(--soft);font-weight:700;font-size:15px}
+
+.note{ font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5; }
+.note strong{color:var(--text)}
+
+.problem-statement{
+  background:var(--card);border:1px solid var(--border);border-left:4px solid var(--primary);
+  padding:16px 20px;border-radius:6px;margin-bottom:18px;
+}
+.problem-statement h3{ margin:0 0 10px;color:var(--primary);font-size:17px; }
+.problem-statement p{margin:6px 0}
+.problem-statement ul, .problem-statement ol{margin:6px 0;padding-left:22px}
+
+.error-table{
+  width:100%;border-collapse:collapse;background:var(--card);
+  border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13px;margin-bottom:18px;
+}
+.error-table th, .error-table td{ padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top; }
+.error-table th{ background:var(--primary);color:#fff;font-weight:600;font-size:12px;letter-spacing:.3px; }
+.error-table td.code{ font-family:Consolas,Menlo,monospace;font-weight:600;color:var(--accent);white-space:nowrap; }
+.error-table td.type{ font-size:12px;white-space:nowrap; }
+.error-table tr.fake-ref td{ background:#FDF6F5; }
+.error-table tr.field-tamper td{ background:#FDF8F2; }
+.error-table tr.domain-fake td{ background:#F6F4FB; }
+.error-table tr.wrong-pos td{ background:#F3F7F5; }
+
+.standard-answer{
+  background:#F0F7F2;border:1px solid #C8E6CF;border-left:4px solid var(--ok);
+  padding:14px 20px;border-radius:6px;margin-bottom:20px;
+}
+.standard-answer .label{ font-size:12px;color:var(--ok);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px; }
+.standard-answer .rubric{ font-size:13px;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px dashed #C8E6CF; }
+
+.cards{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px;align-items:start;
+}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.card.bad-output{border-color:#F0CFCC}
+.card-head{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:linear-gradient(180deg, #FCFDFE 0%, #F6F8FB 100%);
+}
+.card.bad-output .card-head{ background:linear-gradient(180deg, #FDF6F5 0%, #FBE9E6 100%); }
+.card-head .model-name{ font-weight:700;color:var(--primary);font-size:15px;flex:1; }
+.card-head .model-name .api-id{font-weight:400;color:var(--muted);font-size:12px;display:block;margin-top:2px}
+.badge{ display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600; }
+.badge.ok{background:#E8F5EC;color:var(--ok)}
+.badge.warn{background:#FBF1D7;color:var(--warn)}
+.badge.bad{background:#FBE4E2;color:var(--bad)}
+.card-meta{
+  padding:8px 16px;background:var(--soft);font-size:12.5px;color:var(--muted);
+  display:flex;flex-wrap:wrap;gap:14px;border-bottom:1px solid var(--border);
+}
+.card-meta strong{color:var(--text);font-weight:500}
+.card-body{ padding:16px 18px;font-size:14px;line-height:1.7; }
+.card-body h4{ color:var(--primary);margin:14px 0 6px;font-size:14px;font-weight:700; }
+.card-body h4:first-child{margin-top:0}
+.card-body p{margin:6px 0}
+.card-body ul, .card-body ol{margin:6px 0;padding-left:22px}
+.card-body li{margin:4px 0}
+.card-body code{background:var(--soft);padding:1px 5px;border-radius:3px;font-size:12.5px}
+.card-body pre{background:#F8F9FA;padding:10px 12px;border-radius:4px;overflow-x:auto;font-size:12px;border:1px solid var(--border);margin:8px 0}
+.card-body pre.verify-ok{border-left:3px solid var(--ok)}
+.card-body pre.verify-bad{border-left:3px solid var(--bad);background:#FDF6F5}
+
+.bug-list{margin:0;padding-left:0;list-style:none;counter-reset:bug}
+.bug-list li{
+  counter-increment:bug;background:var(--soft);border-radius:5px;padding:8px 12px 8px 36px;
+  margin:6px 0;position:relative;font-size:13px;line-height:1.55;
+}
+.bug-list li::before{
+  content: counter(bug);position:absolute;left:10px;top:8px;
+  width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+.bug-list li.fake{background:#FDF6F5}
+.bug-list li.fake::before{background:var(--bad)}
+.bug-list .loc{font-family:Consolas,Menlo,monospace;color:var(--accent);font-weight:600}
+.bug-list .tag-type{
+  display:inline-block;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:600;margin-left:6px;
+}
+.tag-type.fabricated{background:#FBE4E2;color:var(--bad)}
+.tag-type.field-tamper{background:#FBEBCE;color:#8B6914}
+.tag-type.domain-fake{background:#E8DEF8;color:#5A3299}
+.tag-type.wrong-pos{background:#D6EDE2;color:var(--ok)}
+
+.criterion-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:8px 0;
+}
+.criterion{
+  background:var(--card);border:1px solid var(--border);border-radius:5px;padding:8px 12px;font-size:13px;
+}
+.criterion.ok{border-left:3px solid var(--ok)}
+.criterion.warn{border-left:3px solid var(--warn)}
+.criterion.bad{border-left:3px solid var(--bad)}
+.criterion .crit-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+.criterion .crit-val{font-weight:600;font-size:13.5px;font-family:Consolas,Menlo,monospace}
+.criterion.ok .crit-val{color:var(--ok)}
+.criterion.warn .crit-val{color:var(--warn)}
+.criterion.bad .crit-val{color:var(--bad)}
+
+.failure-callout{
+  background:#FDF6F5;border:1px solid #F0CFCC;border-left:4px solid var(--bad);
+  padding:14px 18px;border-radius:6px;margin:14px 0;
+}
+.failure-callout h4{color:var(--bad);margin:0 0 8px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.failure-callout ul{margin:6px 0;padding-left:20px;font-size:13.5px}
+.failure-callout li{margin:4px 0}
+.failure-callout code{background:#FBE4E2;color:#7A1F1F;padding:1px 5px;border-radius:3px;font-size:12.5px}
+
+.hit-map{
+  display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;margin:8px 0;
+}
+.hit-box{
+  text-align:center;padding:6px 4px;border-radius:4px;font-size:12px;font-weight:600;
+  font-family:Consolas,Menlo,monospace;
+}
+.hit-box.hit{background:#E8F5EC;color:var(--ok);border:1px solid #C8E6CF}
+.hit-box.miss{background:#FBE4E2;color:var(--bad);border:1px solid #F0CFCC}
+
+table.fp-table{
+  width:100%;border-collapse:collapse;background:var(--card);
+  border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13px;
+  margin-top:12px;
+}
+table.fp-table th, table.fp-table td{ padding:8px 12px;text-align:left;border-bottom:1px solid var(--border); }
+table.fp-table th{ background:var(--bad);color:#fff;font-weight:600;font-size:12px;letter-spacing:.3px; }
+table.fp-table td.truth{color:var(--ok);font-weight:600}
+
+footer{ max-width:1200px;margin:40px auto 60px;padding:24px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--border); }
+
+@media (max-width: 768px){
+  .hero h1{font-size:24px}
+  section h2{font-size:20px}
+  .cards{grid-template-columns:1fr}
+  table.summary{font-size:12.5px}
+  table.summary th, table.summary td{padding:7px 6px}
+  .hit-map{grid-template-columns:repeat(2, 1fr)}
+}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="inner">
+    <span class="brand">Benchmark 03 · 引用核查</span>
+    <div class="links">
+      <a class="anchor" href="#overview">总览</a>
+      <a class="anchor" href="#problem">题目 &amp; 答案</a>
+      <a class="anchor" href="#opus">opus</a>
+      <a class="anchor" href="#deepseek">deepseek</a>
+      <a class="anchor" href="#mimo">MiMo</a>
+      <a class="anchor" href="#kimi">kimi</a>
+      <a class="anchor" href="#panshi100">磐石100</a>
+      <a class="anchor" href="#panshi-failure">磐石失败分析</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Benchmark 03 · 引用核查 五模型对比</h1>
+  <div class="subtitle">LaTeX 论文引用审计 · 8 处人为注入错误 · agent loop 模式 · 单次运行试跑</div>
+
+  <div class="meta-grid">
+    <div class="meta">
+      <div class="label">参评模型</div>
+      <div class="value">opus · deepseek · MiMo · kimi · 磐石100</div>
+    </div>
+    <div class="meta">
+      <div class="label">opus</div>
+      <div class="value"><code>claude-opus-4-7</code> · OAuth Max</div>
+    </div>
+    <div class="meta">
+      <div class="label">deepseek</div>
+      <div class="value"><code>deepseek-v4-pro[1m]</code> · 官方 Anthropic API</div>
+    </div>
+    <div class="meta">
+      <div class="label">MiMo</div>
+      <div class="value"><code>mimo-v2.5-pro</code> · 小米 Token Plan CN 兼容 Anthropic</div>
+    </div>
+    <div class="meta">
+      <div class="label">kimi</div>
+      <div class="value"><code>kimi-k2.6</code> · Moonshot 兼容 Anthropic</div>
+    </div>
+    <div class="meta">
+      <div class="label">磐石100</div>
+      <div class="value"><code>S1-Base-Ultra (S1-671B)</code> · uni-api 网关</div>
+    </div>
+    <div class="meta">
+      <div class="label">运行 harness</div>
+      <div class="value"><code>claude.exe -p</code> · <code>bypassPermissions</code> · 3h 上限</div>
+    </div>
+    <div class="meta">
+      <div class="label">沙盒隔离</div>
+      <div class="value"><code>%TEMP%\bench-citation\&lt;model&gt;\run1\</code> · 仅含 paper.tex</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="no-border">
+  <h2>总览 <span class="tag">8 处错误 · 4 种类型 · 满分 10</span></h2>
+
+  <table class="summary" style="margin-bottom:18px">
+    <thead>
+      <tr>
+        <th style="text-align:left">模型</th>
+        <th>耗时 (s)</th>
+        <th>turns</th>
+        <th>findings.md</th>
+        <th>TP 命中 / 8</th>
+        <th>分类正确 / 8</th>
+        <th>假阳性</th>
+        <th>得分 / 10</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="model">opus<br><span class="sub">claude-opus-4-7</span></td>
+        <td>610.9</td>
+        <td>64</td>
+        <td class="score-ok">✓</td>
+        <td class="score-partial">6 / 8</td>
+        <td class="score-partial">4 / 8</td>
+        <td class="score-partial">1 条 (−0.5)</td>
+        <td class="total" style="color:var(--warn)">5.75</td>
+      </tr>
+      <tr>
+        <td class="model">deepseek<br><span class="sub">deepseek-v4-pro[1m]</span></td>
+        <td>2 495.0</td>
+        <td>65</td>
+        <td class="score-ok">✓</td>
+        <td class="score-ok">8 / 8</td>
+        <td class="score-ok">8 / 8</td>
+        <td class="score-partial">3 条 (−1.5)</td>
+        <td class="total" style="color:var(--ok)">8.5</td>
+      </tr>
+      <tr>
+        <td class="model">MiMo<br><span class="sub">mimo-v2.5-pro</span></td>
+        <td>848.8</td>
+        <td>—</td>
+        <td class="score-ok">✓</td>
+        <td class="score-partial">6 / 8</td>
+        <td class="score-partial">5 / 8</td>
+        <td class="score-ok">0 条</td>
+        <td class="total" style="color:var(--warn)">6.9</td>
+      </tr>
+      <tr>
+        <td class="model">kimi<br><span class="sub">kimi-k2.6</span></td>
+        <td>2 363.5</td>
+        <td>63</td>
+        <td class="score-ok">✓</td>
+        <td class="score-partial">6 / 8</td>
+        <td class="score-partial">4 / 8</td>
+        <td class="score-ok">0 条</td>
+        <td class="total" style="color:var(--warn)">6.25</td>
+      </tr>
+      <tr>
+        <td class="model">磐石100<br><span class="sub">S1-Base-Ultra</span></td>
+        <td>59.2</td>
+        <td class="score-zero">1</td>
+        <td class="score-zero">✗ 缺失</td>
+        <td class="score-zero">0 / 8</td>
+        <td class="score-zero">0 / 8</td>
+        <td>—</td>
+        <td class="total" style="color:var(--bad)">0.0</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="note">
+    <strong>评分基线（来自 solutions/citation/bugs_reference.md）：</strong>每正确指出错误位置 +0.625 分（共 5.0）·
+    每正确分类错误类型 +0.625 分（共 5.0）· 假阳性 −0.5 分 / 条 · 下限 0。
+    <strong>deepseek 得分构成：</strong>8 TP 识别 5.0 + 8 分类正确 5.0 − 3 假阳性 1.5 = <strong>8.5 / 10</strong>。
+    <strong>opus 得分构成：</strong>6 TP 识别 3.75 + 4 分类正确 2.5 − 1 假阳性 0.5 = <strong>5.75 / 10</strong>；
+    漏检 E7、E8（位置错误），E5/E6（领域伪造）被笼统归入"完全捏造"未细分。
+    <strong>MiMo 得分构成：</strong>6 TP 识别 3.75 + 5 分类正确 3.125 − 0 假阳性 = <strong>6.875 / 10 ≈ 6.9 / 10</strong>；
+    漏检 E7、E8（位置错误），Reynolds2019 误分类为"期刊号错"而非"完全捏造"。
+    <strong>kimi 得分构成：</strong>6 TP 识别 3.75 + 4 分类正确 2.5 − 0 假阳性 = <strong>6.25 / 10</strong>；
+    漏检 E7、E8（位置错误），E5/E6 未区分"领域伪造"vs"完全捏造"。
+    磐石100 turns=1，仅输出执行计划文本，未实际调用任何工具。
+  </p>
+</section>
+
+<!-- ============ PROBLEM & ANSWER KEY ============ -->
+<section id="problem">
+  <h2>题目 <span class="tag">N-queens 统计力学论文 · 引用审计</span></h2>
+
+  <div class="problem-statement">
+    <h3>题面（给被测 AI 的 prompt）</h3>
+    <p>给定一篇 LaTeX 论文 <code>paper.tex</code>（关于 N-queens 问题的统计力学），包含 23 条 <code>\bibitem</code> 引用。</p>
+    <p><strong>任务：</strong>作为学术审稿人，复核所有引用的准确性和恰当性。可使用 WebSearch / WebFetch / Bash / Python 调用 Crossref REST API、arXiv API 等。</p>
+    <p><strong>输出：</strong>在沙盒中创建 <code>findings.md</code>，逐条记录发现的引用问题（位置、问题描述、证据、修复建议）。不修改 paper.tex。</p>
+    <p><strong>关键约束：</strong>模型仅能访问 sandbox 内的 paper.tex（重命名自 paper_buggy.tex），answer_key.md 和 references_truth.md 不在沙盒中。</p>
+  </div>
+
+  <div class="standard-answer">
+    <div class="label">8 处人为注入错误（来自 solutions/citation/bugs_reference.md，模型不可见）</div>
+
+    <table class="error-table">
+      <thead>
+        <tr>
+          <th style="width: 60px">编号</th>
+          <th style="width: 110px">bibitem key</th>
+          <th style="width: 90px">类型</th>
+          <th style="width: 160px">位置</th>
+          <th>错误描述</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="fake-ref">
+          <td class="code">E1</td>
+          <td class="code">Reynolds2019</td>
+          <td class="type">完全捏造</td>
+          <td>正文 line ~122, bibitem</td>
+          <td>J. M. Reynolds / S. T. Park 此合作记录不存在，CPC 241 卷无此论文</td>
+        </tr>
+        <tr class="fake-ref">
+          <td class="code">E2</td>
+          <td class="code">Tanaka2023</td>
+          <td class="type">完全捏造</td>
+          <td>正文 line ~791, bibitem</td>
+          <td>H. Tanaka / K. Yamada 在 PR Research 5 上无此 tensor network counting 论文</td>
+        </tr>
+        <tr class="field-tamper">
+          <td class="code">E3</td>
+          <td class="code">Metropolis1953</td>
+          <td class="type">字段篡改 — 年份</td>
+          <td>bibitem</td>
+          <td>真实年份 1953，被改为 1955（bibitem key 仍是 Metropolis1953 自相矛盾）</td>
+        </tr>
+        <tr class="field-tamper">
+          <td class="code">E4</td>
+          <td class="code">Frowis2010</td>
+          <td class="type">字段篡改 — 卷号</td>
+          <td>bibitem</td>
+          <td>真实卷号 Phys. Rev. A <strong>81</strong>, 062337，被改为 <strong>82</strong></td>
+        </tr>
+        <tr class="domain-fake">
+          <td class="code">E5</td>
+          <td class="code">Boyd2024</td>
+          <td class="type">领域伪造</td>
+          <td>正文 line ~89, bibitem</td>
+          <td>A. Agrawal / S. Boyd 真合作（CVXPY），但未发过此 SIAM Rev. 66 综述</td>
+        </tr>
+        <tr class="domain-fake">
+          <td class="code">E6</td>
+          <td class="code">Verstraete2022</td>
+          <td class="type">领域伪造</td>
+          <td>正文 line ~654, bibitem</td>
+          <td>F. Verstraete 真做 tensor networks，但未发过此 Adv. Phys.: X 7 单作者综述</td>
+        </tr>
+        <tr class="wrong-pos">
+          <td class="code">E7</td>
+          <td class="code">Frowis2010</td>
+          <td class="type">位置错误 — 添加</td>
+          <td>正文 line ~199</td>
+          <td>Kawasaki dynamics 处引用了 Frowis2010（内容为 MPO 算子，无关）</td>
+        </tr>
+        <tr class="wrong-pos">
+          <td class="code">E8</td>
+          <td class="code">Vanderstraeten2018</td>
+          <td class="type">位置错误 — 添加</td>
+          <td>正文 line ~111</td>
+          <td>"constraint hierarchy" 处引用了 Vanderstraeten2018（内容为 3D frustrated spin systems，无关）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="rubric"><strong>评分细则：</strong>每处错误正确指出位置（true positive）0.625 × 8 = 5.0 · 正确分类错误类型 0.625 × 8 = 5.0 · 真实条目误判为假 −0.5 / 条 · 满分 10。</div>
+  </div>
+
+  <p class="note">
+    <strong>4 种错误类型：</strong>① 完全捏造（fabrication）· ② 字段篡改（field tampering）· ③ 领域伪造（domain fabrication — 真实作者 + 合理领域，但具体论文不存在）· ④ 位置错误（wrong-position addition — 引用真实但用在不匹配的位置）。
+    剩余 18 条引用为真实引用（来自 eassy_v3.tex，作者已人工核过），不应被标记为假。
+  </p>
+</section>
+
+<!-- ============ OPUS ============ -->
+<section id="opus">
+  <h2>opus · claude-opus-4-7 <span class="tag">5.75 / 10 — 6/8 命中，漏检 E7/E8 错位</span></h2>
+
+  <div class="cards" style="grid-template-columns:1fr">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">opus<span class="api-id">claude-opus-4-7 · OAuth Max</span></div>
+        <span class="badge warn">△ 5.75 / 10</span>
+      </div>
+      <div class="card-meta">
+        <div><strong>耗时</strong> 610.9s (~10 min)</div>
+        <div><strong>turns</strong> 64</div>
+        <div><strong>output_tokens</strong> 26 438</div>
+        <div><strong>cache_read</strong> 4 176 556</div>
+        <div><strong>stop_reason</strong> end_turn</div>
+        <div><strong>exit_code</strong> 0</div>
+        <div><strong>findings.md</strong> <span style="color:var(--ok)">✓ 详尽（167 行）</span></div>
+      </div>
+      <div class="card-body">
+
+<h4>8 处注入错误 · 6 处命中（TP = 6/8）</h4>
+
+<table class="error-table">
+  <thead>
+    <tr>
+      <th style="width:35px">#</th>
+      <th>ground truth 错误</th>
+      <th style="width:120px">opus 判定</th>
+      <th>opus 分类</th>
+      <th style="width:40px">判对</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="code">E1</td>
+      <td>Reynolds2019 完全捏造</td>
+      <td>非存在 · ScienceDirect 核 CPC vol.241 实际 TOC 无此论文</td>
+      <td><span class="tag-type fabricated">完全捏造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E2</td>
+      <td>Tanaka2023 完全捏造</td>
+      <td>非存在 · Crossref 查 DOI 10.1103/PhysRevResearch.5.023115 命中实际是 Albay-Jun-Lai 的 Brownian particle 论文</td>
+      <td><span class="tag-type fabricated">完全捏造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E3</td>
+      <td>Metropolis1953 年份 1953→1955</td>
+      <td>"year typo (1955 → 1953)" · AIP / Wikipedia 交叉确认 1953</td>
+      <td><span class="tag-type field-tamper">字段篡改-年份</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E4</td>
+      <td>Frowis2010 卷号 81→82</td>
+      <td>"vol 82 → 81" · APS DOI 10.1103/PhysRevA.81.062337 验证</td>
+      <td><span class="tag-type field-tamper">字段篡改-卷号</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E5</td>
+      <td>Boyd2024 领域伪造</td>
+      <td>非存在 · Agrawal 个人 publication list 无此 SIAM Rev. 论文，SIAM Rev. vol.66 TOC 也无</td>
+      <td><span class="tag-type fabricated">完全捏造</span><span style="color:var(--bad);font-size:11px;margin-left:4px">应为领域伪造</span></td>
+      <td class="score-partial">△ 位置对，分类粗</td>
+    </tr>
+    <tr>
+      <td class="code">E6</td>
+      <td>Verstraete2022 领域伪造</td>
+      <td>非存在 · DOI 10.1080/23746149.2022.2098453 返回 404，Crossref 无 Verstraete 此标题</td>
+      <td><span class="tag-type fabricated">完全捏造</span><span style="color:var(--bad);font-size:11px;margin-left:4px">应为领域伪造</span></td>
+      <td class="score-partial">△ 位置对，分类粗</td>
+    </tr>
+    <tr>
+      <td class="code">E7</td>
+      <td>Frowis2010 错位（line ~199, Kawasaki dynamics）</td>
+      <td colspan="2" style="color:var(--bad)">未识别 · 仅记录 "Used at: lines 199 and 654" 但未对照 cite 上下文（Kawasaki dynamics）与 bibitem 主题（MPO 算子）做语义匹配</td>
+      <td class="score-zero">✗</td>
+    </tr>
+    <tr>
+      <td class="code">E8</td>
+      <td>Vanderstraeten2018 错位（line ~111, constraint hierarchy）</td>
+      <td colspan="2" style="color:var(--bad)">未识别 · 把 Vanderstraeten2018 列入"verified correct (16)"，未审查 line 111 的 cite 是否语义合理</td>
+      <td class="score-zero">✗</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>评分明细</h4>
+<div class="criterion-grid">
+  <div class="criterion warn">
+    <div class="crit-label">TP 识别 (6×0.625)</div>
+    <div class="crit-val">3.75 / 5.0</div>
+  </div>
+  <div class="criterion warn">
+    <div class="crit-label">分类正确 (4×0.625)</div>
+    <div class="crit-val">2.5 / 5.0</div>
+  </div>
+  <div class="criterion warn">
+    <div class="crit-label">假阳性 (1×−0.5)</div>
+    <div class="crit-val">−0.5</div>
+  </div>
+  <div class="criterion warn">
+    <div class="crit-label">总计</div>
+    <div class="crit-val">5.75 / 10</div>
+  </div>
+</div>
+
+<h4>1 条假阳性</h4>
+<table class="fp-table">
+  <thead>
+    <tr>
+      <th style="width:120px">引用</th>
+      <th>opus 误判</th>
+      <th>真实情况</th>
+      <th style="width:50px">扣分</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="code">Bezzel1848</td>
+      <td>"page-636 figure should be re-verified — the inverted digit-pair '363 ↔ 636' looks like a transcription error"，建议改为 363</td>
+      <td class="truth">Berliner Schachzeitung 3, 636 正确（作者已人工核过）。opus 自认"unresolved"，但仍把它写进了"Substantive errors in real references"一节</td>
+      <td style="color:var(--bad);font-weight:600">−0.5</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="note"><strong>假阳性分析：</strong>与 deepseek 命中的同一假阳性。两个模型对历史早期期刊页码做"常识推断"（"363 看起来更合理"），开放网络上 secondary sources 也存在 363 / 636 的不一致引用。这种 heuristic 在 historic publication 核查中普遍不可靠。opus 自己在 §3e 把这条标为 "uncertain"，但 §2c 仍以"建议改 363"的口吻列出。</p>
+
+<div class="failure-callout">
+  <h4>核心失败：未对每条 cite 做语义合理性匹配</h4>
+  <ul>
+    <li>opus 的工作流是 <strong>逐 bibitem 核 bibitem 数据准确性</strong>（作者、卷号、年份、DOI），并未为每个 <code>\cite{...}</code> 调用上下文重新审视"这一处引文是否切题"。</li>
+    <li>E7（Frowis2010 出现在 Kawasaki dynamics 处）与 E8（Vanderstraeten2018 出现在 constraint hierarchy 处）属于位置错误：bibitem 本身合法，但被插在了与其主题不匹配的句子里。</li>
+    <li>opus 在 E7 处仅备注 "Used at: lines 199 and 654"，未对比"Kawasaki dynamics（粒子交换 MCMC）" vs "MPO 算子（long-range 系统）"的主题落差。</li>
+    <li>对照 deepseek：deepseek 对每条 cite 都附 "topic match" 检查，因此 8/8 全中（含 E7/E8）。</li>
+  </ul>
+</div>
+
+<h4>4-class taxonomy 的颗粒度问题（E5、E6）</h4>
+<p>评分细则把"完全捏造"（fake authors + fake paper）和"领域伪造"（real authors + plausible topic + fake paper）作为两个独立 bucket。opus 把 E5（Boyd2024）/E6（Verstraete2022）和 E1/E2 一并归入"fictitious / non-existent" 一栏：</p>
+<ul>
+  <li>opus 在 E5 的分析里 <strong>实际识别了"作者真实"</strong>："Akshay Agrawal's official publication list lists no SIAM Review paper at all, and his only n-queens-related paper is the 2023 Optimization Letters article with Nobel and Boyd (i.e. Nobel2023)" — 即承认 Agrawal+Boyd 是真合作对。</li>
+  <li>但 opus 没有把这个观察提升为"领域伪造"分类，导致 4-class label 上失分。<strong>实质识别正确，标签颗粒度粗</strong>。</li>
+</ul>
+
+<h4>方法亮点</h4>
+<ul>
+  <li><strong>Crossref DOI 反查</strong>：构造 <code>10.1103/PhysRevResearch.5.023115</code> 等 DOI 主动 lookup，发现 E2 的 DOI 实际指向 Albay-Jun-Lai 的另一篇论文（DOI 占用而非空号），证据更硬。</li>
+  <li><strong>期刊 TOC 枚举</strong>：对 CPC vol.241 与 SIAM Rev. vol.66 直接遍历目录验证。</li>
+  <li><strong>反向作者核查</strong>：访问 akshayagrawal.com 个人 publication list 验证 E5。</li>
+  <li>findings.md 167 行，结构：critical → substantive → minor / debatable → verified-correct (16)。对每个 verified 条目都给出 verification 手段。</li>
+  <li><strong>非评分但有价值的发现</strong>：在 §3b 指出"Simkin builds on Bowtell-Keevash"的 in-text 表述不准（实为独立同期工作）；在 §3c 指出 Yao2025 的 N=27 实际是 verification 而非 breakthrough（首次推到 N=27 是 Preußer-Engelhardt 2016）。这些是论文叙事层级的 review，超出引用核查范围。</li>
+</ul>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEEPSEEK ============ -->
+<section id="deepseek">
+  <h2>deepseek · deepseek-v4-pro[1m] <span class="tag">8.5 / 10 — 全部 8 处命中，3 条假阳性</span></h2>
+
+  <div class="cards" style="grid-template-columns:1fr">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">deepseek<span class="api-id">deepseek-v4-pro[1m] · 官方 Anthropic API</span></div>
+        <span class="badge ok">✓ 8.5 / 10</span>
+      </div>
+      <div class="card-meta">
+        <div><strong>耗时</strong> 2 495.0s (~42 min)</div>
+        <div><strong>turns</strong> 65</div>
+        <div><strong>output_tokens</strong> 31 804</div>
+        <div><strong>cache_read</strong> 2 264 448</div>
+        <div><strong>stop_reason</strong> end_turn</div>
+        <div><strong>findings.md</strong> <span style="color:var(--ok)">✓ 详尽</span></div>
+      </div>
+      <div class="card-body">
+
+<h4>8 处注入错误 · 全部命中（TP = 8/8）</h4>
+
+<table class="error-table">
+  <thead>
+    <tr>
+      <th style="width:35px">#</th>
+      <th>ground truth 错误</th>
+      <th style="width:100px">deepseek 判定</th>
+      <th>deepseek 分类</th>
+      <th style="width:40px">判对</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="code">E1</td>
+      <td>Reynolds2019 完全捏造</td>
+      <td>零命中 · CPC vol.241 遍历确认不存在</td>
+      <td><span class="tag-type fabricated">完全捏造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E2</td>
+      <td>Tanaka2023 完全捏造</td>
+      <td>PRResearch 5, 023115 实际是另一篇 electron beam 论文</td>
+      <td><span class="tag-type fabricated">完全捏造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E3</td>
+      <td>Metropolis1953 年份 1953→1955</td>
+      <td>DOI 确认 1953，bibitem key 自相矛盾</td>
+      <td><span class="tag-type field-tamper">字段篡改-年份</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E4</td>
+      <td>Frowis2010 卷号 81→82</td>
+      <td>DOI 81.062337 有效，82.062337 404</td>
+      <td><span class="tag-type field-tamper">字段篡改-卷号</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E5</td>
+      <td>Boyd2024 领域伪造</td>
+      <td>Crossref 零命中 · Agrawal+Boyd 合作列表中无此论文</td>
+      <td><span class="tag-type domain-fake">领域伪造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E6</td>
+      <td>Verstraete2022 领域伪造</td>
+      <td>Crossref / Google Scholar 零匹配 · 文章号 2098453 不存在</td>
+      <td><span class="tag-type domain-fake">领域伪造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E7</td>
+      <td>Frowis2010 错位（line ~199, Kawasaki dynamics）</td>
+      <td>"misapplied at line 199 — Frowis2010 is about tensor operators, not Kawasaki dynamics"</td>
+      <td><span class="tag-type wrong-pos">位置错误</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E8</td>
+      <td>Vanderstraeten2018 错位（line ~111, constraint hierarchy）</td>
+      <td>"possibly misapplied at line 111 — no connection to N-queens constraint hierarchy"</td>
+      <td><span class="tag-type wrong-pos">位置错误</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>评分明细</h4>
+<div class="criterion-grid">
+  <div class="criterion ok">
+    <div class="crit-label">TP 识别 (8×0.625)</div>
+    <div class="crit-val">5.0 / 5.0 ✓</div>
+  </div>
+  <div class="criterion ok">
+    <div class="crit-label">分类正确 (8×0.625)</div>
+    <div class="crit-val">5.0 / 5.0 ✓</div>
+  </div>
+  <div class="criterion warn">
+    <div class="crit-label">假阳性 (3×−0.5)</div>
+    <div class="crit-val">−1.5</div>
+  </div>
+  <div class="criterion ok">
+    <div class="crit-label">总计</div>
+    <div class="crit-val">8.5 / 10</div>
+  </div>
+</div>
+
+<h4>3 条假阳性</h4>
+<table class="fp-table">
+  <thead>
+    <tr>
+      <th style="width:120px">引用</th>
+      <th>deepseek 误判</th>
+      <th>真实情况</th>
+      <th style="width:50px">扣分</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="code">Bezzel1848</td>
+      <td>page "almost certainly 363, not 636 — digit transposition"</td>
+      <td class="truth">Berliner Schachzeitung 3, 636 正确（作者人工核过）</td>
+      <td style="color:var(--bad);font-weight:600">−0.5</td>
+    </tr>
+    <tr>
+      <td class="code">Xiang2024</td>
+      <td>year "2023, not 2024"（引 Crossref DOI 10.1017/9781009398671）</td>
+      <td class="truth">CUP 2024 出版，Crossref 元数据可能有 2023 online-first 字段</td>
+      <td style="color:var(--bad);font-weight:600">−0.5</td>
+    </tr>
+    <tr>
+      <td class="code">Luria2021</td>
+      <td>author order "possibly wrong — Simkin first in published version"</td>
+      <td class="truth">arXiv:2105.11431 就是 Z. Luria and M. Simkin，bibitem 正确</td>
+      <td style="color:var(--bad);font-weight:600">−0.5</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="note"><strong>假阳性分析：</strong>Bezzel1848 的 page 误判源于 deepseek 对 1848 年期刊页码范围的"常识推理"（"a volume from 1848 would rarely run to 636 pages"），这种 heuristic 在历史文献核查中不可靠。Xiang2024 的 Crossref 元数据显示 2023 是因为 online-first 惯例，印刷版确为 2024。Luria2021 的 SODA 2022 proceedings 版与 arXiv 版 author order 可能不一致，但 bibitem 对应的是 arXiv version。</p>
+
+<h4>额外的准确发现（非评分项，但体现深度）</h4>
+<ul>
+  <li>识别了 <strong>Bowtell2023 bibitem key 年份歧义</strong>（arXiv:2021, key:2023, 实际未正式发表）——虽非 bug 但显示理解 arXiv / 正式发表的差异。</li>
+  <li>指出 Simkin2022 的 arXiv 时间线问题（"Simkin's arXiv predates Bowtell & Keevash chronologically"）——对论文叙事逻辑的语义级别审查。</li>
+  <li>确认了全部 18 条真实引用无误（除上述 3 条假阳性外）——<strong>没有将任何一条真实条目误判为"论文不存在"</strong>。</li>
+  <li>对每条引用标注了验证方法（Crossref / Google Scholar）和置信度。</li>
+</ul>
+
+<h4>方法亮点</h4>
+<ul>
+  <li>使用 <strong>Crossref REST API</strong> 逐个验证 DOI、作者、标题、卷号、年份。</li>
+  <li>对疑似捏造的引用使用 <strong>反向查询</strong>（查期刊卷号全部目录、查作者全部 publication list）。</li>
+  <li>对位置错误的引用，不仅查 bibitem 真实性，还 <strong>交叉比对 cite 语义内容与所引论文主题</strong>。</li>
+  <li>findings.md 长达 332 行，结构清晰（Summary → Detailed Findings 逐条 → Additional Observations → Confidence 分类）。</li>
+</ul>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MIMO ============ -->
+<section id="mimo">
+  <h2>MiMo · mimo-v2.5-pro <span class="tag">6.9 / 10 — 6/8 命中，0 假阳性</span></h2>
+
+  <div class="cards" style="grid-template-columns:1fr">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">MiMo<span class="api-id">mimo-v2.5-pro · 小米 Token Plan CN 兼容 Anthropic</span></div>
+        <span class="badge warn">△ 6.9 / 10</span>
+      </div>
+      <div class="card-meta">
+        <div><strong>耗时</strong> 848.8s (~14 min)</div>
+        <div><strong>turns</strong> —</div>
+        <div><strong>sandbox</strong> 隔离沙盒</div>
+        <div><strong>findings.md</strong> <span style="color:var(--ok)">✓</span></div>
+      </div>
+      <div class="card-body">
+
+<h4>8 处注入错误 · 6 处命中（TP = 6/8）</h4>
+
+<table class="error-table">
+  <thead>
+    <tr>
+      <th style="width:35px">#</th>
+      <th>ground truth 错误</th>
+      <th style="width:120px">MiMo 判定</th>
+      <th>MiMo 分类</th>
+      <th style="width:40px">判对</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="code">E1</td>
+      <td>Reynolds2019 完全捏造</td>
+      <td>检测到异常，但分类为"期刊号/卷号错误"</td>
+      <td><span class="tag-type field-tamper">字段篡改</span><span style="color:var(--bad);font-size:11px;margin-left:4px">应为完全捏造</span></td>
+      <td class="score-partial">△ 位置对，分类错</td>
+    </tr>
+    <tr>
+      <td class="code">E2</td>
+      <td>Tanaka2023 完全捏造</td>
+      <td>识别为不存在的引用</td>
+      <td><span class="tag-type fabricated">完全捏造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E3</td>
+      <td>Metropolis1953 年份 1953→1955</td>
+      <td>年份错误，确认为 1953</td>
+      <td><span class="tag-type field-tamper">字段篡改-年份</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E4</td>
+      <td>Frowis2010 卷号 81→82</td>
+      <td>卷号错误，确认为 81</td>
+      <td><span class="tag-type field-tamper">字段篡改-卷号</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E5</td>
+      <td>Boyd2024 领域伪造</td>
+      <td>识别为不存在的论文</td>
+      <td><span class="tag-type domain-fake">领域伪造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E6</td>
+      <td>Verstraete2022 领域伪造</td>
+      <td>识别为不存在的单作者综述</td>
+      <td><span class="tag-type domain-fake">领域伪造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E7</td>
+      <td>Frowis2010 错位（line ~199, Kawasaki dynamics）</td>
+      <td colspan="2" style="color:var(--bad)">未识别 · 未检查 cite 位置与 bibitem 主题的语义匹配</td>
+      <td class="score-zero">✗</td>
+    </tr>
+    <tr>
+      <td class="code">E8</td>
+      <td>Vanderstraeten2018 错位（line ~111, constraint hierarchy）</td>
+      <td colspan="2" style="color:var(--bad)">未识别 · 未审查 line 111 处 cite 的语义合理性</td>
+      <td class="score-zero">✗</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>评分明细</h4>
+<div class="criterion-grid">
+  <div class="criterion warn">
+    <div class="crit-label">TP 识别 (6×0.625)</div>
+    <div class="crit-val">3.75 / 5.0</div>
+  </div>
+  <div class="criterion warn">
+    <div class="crit-label">分类正确 (5×0.625)</div>
+    <div class="crit-val">3.125 / 5.0</div>
+  </div>
+  <div class="criterion ok">
+    <div class="crit-label">假阳性 (0×−0.5)</div>
+    <div class="crit-val">0.0 ✓</div>
+  </div>
+  <div class="criterion warn">
+    <div class="crit-label">总计</div>
+    <div class="crit-val">6.875 / 10 ≈ 6.9</div>
+  </div>
+</div>
+
+<div class="failure-callout">
+  <h4>核心失败：位置错误漏检 + 分类颗粒度粗</h4>
+  <ul>
+    <li><strong>E7/E8 位置错误漏检：</strong>与 opus 相同，MiMo 的工作流偏向逐 bibitem 核数据准确性，未对每条 <code>\cite{...}</code> 位置做语义匹配。Frowis2010 在 Kawasaki dynamics 处的引用、Vanderstraeten2018 在 constraint hierarchy 处的引用均未触发审查。</li>
+    <li><strong>E1 分类错误：</strong>Reynolds2019 实际是完全捏造的引用（作者 + 论文均不存在），但 MiMo 将其分类为"期刊号/卷号错误"（field tampering）而非"完全捏造"（fabrication），导致分类分 −0.625。</li>
+    <li><strong>亮点：0 假阳性</strong> — 未误伤任何真实引用，这一点优于 opus 和 deepseek。</li>
+  </ul>
+</div>
+
+<p class="note">MiMo 在 6 处检测到的错误中，5 处分类正确。未命中项（E7/E8）为位置错误类型，需对每条 cite 做语义匹配才能发现，当前工具流偏向文献元数据核查。</p>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ KIMI ============ -->
+<section id="kimi">
+  <h2>kimi · kimi-k2.6 <span class="tag">6.25 / 10 — 6/8 命中，0 假阳性</span></h2>
+
+  <div class="cards" style="grid-template-columns:1fr">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">kimi<span class="api-id">kimi-k2.6 · Moonshot API</span></div>
+        <span class="badge warn">△ 6.25 / 10</span>
+      </div>
+      <div class="card-meta">
+        <div><strong>耗时</strong> 2 363.5s (~39 min)</div>
+        <div><strong>turns</strong> 63</div>
+        <div><strong>output_tokens</strong> 12 638</div>
+        <div><strong>cache_read</strong> 1 859 072</div>
+        <div><strong>stop_reason</strong> end_turn</div>
+        <div><strong>exit_code</strong> 0</div>
+        <div><strong>findings.md</strong> <span style="color:var(--ok)">✓ 详尽（275 行）</span></div>
+      </div>
+      <div class="card-body">
+
+<h4>8 处注入错误 · 6 处命中（TP = 6/8）</h4>
+
+<table class="error-table">
+  <thead>
+    <tr>
+      <th style="width:35px">#</th>
+      <th>ground truth 错误</th>
+      <th style="width:120px">kimi 判定</th>
+      <th>kimi 分类</th>
+      <th style="width:40px">判对</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="code">E1</td>
+      <td>Reynolds2019 完全捏造</td>
+      <td>疑似不存在 · WebSearch + Crossref API 均无匹配</td>
+      <td><span class="tag-type fabricated">完全捏造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E2</td>
+      <td>Tanaka2023 完全捏造</td>
+      <td>疑似不存在 · APS / Crossref 查 PRResearch 5, 023115 无此论文</td>
+      <td><span class="tag-type fabricated">完全捏造</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E3</td>
+      <td>Metropolis1953 年份 1953→1955</td>
+      <td>"年份错误 (1955 → 1953)" · AIP 官方记录确认 1953</td>
+      <td><span class="tag-type field-tamper">字段篡改-年份</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E4</td>
+      <td>Frowis2010 卷号 81→82</td>
+      <td>"卷号错误 (82 → 81)" · APS DOI 81.062337 验证</td>
+      <td><span class="tag-type field-tamper">字段篡改-卷号</span></td>
+      <td class="score-ok">✓</td>
+    </tr>
+    <tr>
+      <td class="code">E5</td>
+      <td>Boyd2024 领域伪造</td>
+      <td>疑似不存在 · Agrawal+Boyd 有大量合作但无此标题论文，SIAM Rev. 卷66 TOC 无</td>
+      <td><span class="tag-type fabricated">疑似不存在</span><span style="color:var(--bad);font-size:11px;margin-left:4px">应为领域伪造</span></td>
+      <td class="score-partial">△ 位置对，分类粗</td>
+    </tr>
+    <tr>
+      <td class="code">E6</td>
+      <td>Verstraete2022 领域伪造</td>
+      <td>疑似不存在 · Verstraete 真做 TN 但无此单作者综述，Taylor & Francis 无此记录</td>
+      <td><span class="tag-type fabricated">疑似不存在</span><span style="color:var(--bad);font-size:11px;margin-left:4px">应为领域伪造</span></td>
+      <td class="score-partial">△ 位置对，分类粗</td>
+    </tr>
+    <tr>
+      <td class="code">E7</td>
+      <td>Frowis2010 错位（line ~199, Kawasaki dynamics）</td>
+      <td colspan="2" style="color:var(--bad)">未识别 · 未对 cite 上下文做语义匹配（Kawasaki dynamics vs MPO 算子主题不匹配）</td>
+      <td class="score-zero">✗</td>
+    </tr>
+    <tr>
+      <td class="code">E8</td>
+      <td>Vanderstraeten2018 错位（line ~111, constraint hierarchy）</td>
+      <td colspan="2" style="color:var(--bad)">未识别 · 未审查 line 111 处 cite 语义合理性（3D frustrated spin vs N-queens constraint hierarchy）</td>
+      <td class="score-zero">✗</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>评分明细</h4>
+<div class="criterion-grid">
+  <div class="criterion warn">
+    <div class="crit-label">TP 识别 (6×0.625)</div>
+    <div class="crit-val">3.75 / 5.0</div>
+  </div>
+  <div class="criterion warn">
+    <div class="crit-label">分类正确 (4×0.625)</div>
+    <div class="crit-val">2.5 / 5.0</div>
+  </div>
+  <div class="criterion ok">
+    <div class="crit-label">假阳性 (0×−0.5)</div>
+    <div class="crit-val">0.0 ✓</div>
+  </div>
+  <div class="criterion warn">
+    <div class="crit-label">总计</div>
+    <div class="crit-val">6.25 / 10</div>
+  </div>
+</div>
+
+<div class="failure-callout">
+  <h4>核心失败：位置错误漏检 + 分类颗粒度粗</h4>
+  <ul>
+    <li><strong>E7/E8 位置错误漏检：</strong>与 opus / MiMo 相同，kimi 的工作流偏向逐 bibitem 核数据准确性，未对每条 <code>\cite{...}</code> 位置做语义匹配。Frowis2010 在 Kawasaki dynamics 处的引用、Vanderstraeten2018 在 constraint hierarchy 处的引用均未触发审查。</li>
+    <li><strong>E5/E6 分类颗粒度：</strong>kimi 将 E5（Boyd2024）和 E6（Verstraete2022）归入"疑似不存在"大类，未区分"完全捏造"（假作者+假论文）与"领域伪造"（真作者+合理领域+假论文）。但 kimi 在分析中<strong>实际识别了作者真实性</strong>：E5 指出"Agrawal 与 Boyd 确有大量合作"、E6 指出"Verstraete 最著名的综述是 Verstraete, Murg & Cirac (2008)"——即调查时已注意到领域伪造特征，但未将其提升为独立分类标签。</li>
+    <li><strong>亮点：0 假阳性</strong> — 未误伤任何真实引用。kimi 对 Simkin2022 / Bowtell2023 的 key-vs-年份观察写入了"潜在不一致/建议优化"子节，并在正文中注明"不是严格错误"，评分时不计为假阳性。</li>
+  </ul>
+</div>
+
+<h4>方法亮点</h4>
+<ul>
+  <li><strong>WebSearch + Crossref 双轨验证：</strong>对每一条疑似不存在的引用同时使用 WebSearch 和 Crossref REST API 交叉确认，不含糊。</li>
+  <li><strong>期刊卷目录枚举：</strong>对 CPC vol.241、SIAM Rev. vol.66、PRResearch vol.5 实际遍历目录，验证指定卷号下是否有对应论文。</li>
+  <li><strong>反向 author search + 备选文献推荐：</strong>对 E5 查了 stanford.edu/~boyd/papers.html，推荐 Nobel et al. (2023) 为备选；对 E6 推荐 Verstraete, Murg & Cirac (2008) 为备选；对 E2 推荐 Kourtis et al. (2019) 为备选。审稿人式的工作流。</li>
+  <li><strong>额外观察（非评分项）：</strong>指出 Simkin2022 bibitem key 与发表年份不一致（key=2022, pub=2023, arXiv=2021）、Bowtell2023 目前仅为 arXiv 预印本（未正式发表）、Yao2025 作者名缩写可能歧义——这些均为论文叙事层面的审稿建议。</li>
+</ul>
+
+<h4>与 opus 的对比</h4>
+<p>kimi 与 opus 在 03 上表现高度相似：均 63-64 turns、均 6/8 TP、均漏检 E7/E8 位置错误、均未区分 E5/E6 领域伪造。差异点：kimi 0 假阳性（opus 1 条 Bezzel1848），但 kimi 耗时更长（39 vs 10 min），output_tokens 约为 opus 的一半（12.6k vs 26.4k——kimi 报告更简洁）。kimi 在备选文献推荐和多渠道交叉验证上略优于 opus。</p>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PANSHI ============ -->
+<section id="panshi100">
+  <h2>磐石100 · S1-Base-Ultra <span class="tag">0.0 / 10 — turns=1</span></h2>
+
+  <div class="cards" style="grid-template-columns:1fr">
+    <div class="card bad-output">
+      <div class="card-head">
+        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B) · uni-api 网关</span></div>
+        <span class="badge bad">✗ 0.0 / 10</span>
+      </div>
+      <div class="card-meta">
+        <div><strong>耗时</strong> 59.2s</div>
+        <div><strong>turns</strong> <span style="color:var(--bad);font-weight:600">1</span></div>
+        <div><strong>output_tokens</strong> 1 290</div>
+        <div><strong>cache_read</strong> 0</div>
+        <div><strong>stop_reason</strong> end_turn</div>
+        <div><strong>findings.md</strong> <span style="color:var(--bad)">缺失</span></div>
+      </div>
+      <div class="card-body">
+
+<div class="failure-callout">
+  <h4>核心失败：模型从未真正调用任何工具</h4>
+  <ul>
+    <li><code>turns = 1</code>：模型在 prompt 处理后立刻 <code>end_turn</code>，没进入 agent loop。</li>
+    <li>模型输出了一段执行计划（"1. 提取所有引用信息 → 2. 验证每个引用 → 3. 记录问题"）和一段伪 JSON tool call <code>{"tool": "Read", "params": {"file_path": "./paper.tex"}}</code>。</li>
+    <li>这些 JSON 块是 markdown 文本，不是 Anthropic 协议的 <code>tool_use</code> content block，claude.exe 不会解析执行。</li>
+    <li>Archive 沙盒中仅含原始 paper.tex，没有 findings.md。</li>
+  </ul>
+</div>
+
+<p>与 benchmark 02 相同的失败模式：S1-Base-Ultra 未经过 tool-use post-training，遇到工具描述时只会"模仿表面格式"，无法生成结构化的 <code>tool_use</code> block。这也是 <code>turns=1</code> 的根本原因——模型在首轮就"完成了回答"（从它的视角看），然后 <code>end_turn</code>。</p>
+
+<p class="note"><strong>与 opus / deepseek / MiMo / kimi 对比：</strong>opus (64 turns)、deepseek (65)、MiMo (~25)、kimi (63) 均完成了完整的 agent loop，调用 Crossref、ScienceDirect、APS、arXiv 等真实 API 验证引用；磐石100 是<strong>模型能力问题</strong>——从未执行任何工具，turns=1 即 end_turn。这不是网络或限流引起的失败，而是 S1-Base-Ultra 缺乏 tool-use post-training 的直接表现。</p>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PANSHI FAILURE DEEP DIVE ============ -->
+<section id="panshi-failure">
+  <h2>磐石100 失败模式 · 深度分析 <span class="tag">为什么 turns=1</span></h2>
+
+  <h3>1 · 现象</h3>
+  <p>磐石100 在<strong>首轮</strong>就给出"完整答案"并 <code>end_turn</code>。整个 59.2s 实际上花在单次 token 生成（1 290 output_tokens）上，而不是在 agent loop 里读文件、调用 Crossref API、写 findings.md。</p>
+
+  <h3>2 · 模型输出的"伪工具调用"</h3>
+  <p>在 <code>panshi100-answer/citation/run1.md</code> 的 Model final output 段，磐石100 写了以下伪 JSON：</p>
+  <pre style="background:#1F2937;color:#E5E7EB;border-radius:6px;padding:12px 14px;font-family:Consolas,Menlo,monospace;font-size:12px;overflow-x:auto;margin:8px 0;">
+{
+  "tool": "Read",
+  "params": {
+    "file_path": "./paper.tex"
+  }
+}</pre>
+  <p>模型在伪 tool call <strong>之后立即开始分析内容</strong>——但它实际上没有 Read 到任何文件。后续的分析是纯幻觉。它从未调用 Crossref、Google Scholar、arXiv API，仅凭 prompt 中"关于 N-queens 统计力学论文"一句话猜测引用内容。</p>
+
+  <h3>3 · 与 deepseek 的对比：turns 数量说明一切</h3>
+  <table class="summary" style="margin-top:12px">
+    <thead>
+      <tr>
+        <th>指标</th>
+        <th>deepseek</th>
+        <th>磐石100</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="model">turns</td>
+        <td class="score-ok">65</td>
+        <td class="score-zero">1</td>
+      </tr>
+      <tr>
+        <td class="model">output_tokens</td>
+        <td>31 804</td>
+        <td>1 290</td>
+      </tr>
+      <tr>
+        <td class="model">cache_read</td>
+        <td>2 264 448</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td class="model">findings.md 行数</td>
+        <td class="score-ok">332 行</td>
+        <td class="score-zero">不存在</td>
+      </tr>
+      <tr>
+        <td class="model">实际验证手段</td>
+        <td>Crossref API · Google Scholar · DOI lookup · arXiv</td>
+        <td class="score-zero">无（全部幻觉）</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>4 · 根因：S1-Base-Ultra 没有原生 tool-use 训练</h3>
+  <ul>
+    <li>Anthropic 协议下的 tool use 要求模型输出结构化的 <code>tool_use</code> content block（带 <code>id</code> / <code>name</code> / <code>input</code> 字段），由 harness 解析执行。</li>
+    <li>S1-Base-Ultra (ScienceOne 671B) 是基础语言模型，未经过 tool-use post-training。遇到工具描述时只会"模仿表面格式"——把工具调用写成 markdown 文本块。</li>
+    <li>这与 01 中 HTTP 单轮模式失败（reasoning 吃满 token、content 空）是不同的失败模式：HTTP 是推理黑洞，agent 模式是工具能力缺失。</li>
+    <li>要为磐石100 设计引用核查任务，需要换一种范式——例如 HTTP single-turn + 一次性提供所有引用条目让模型凭参数知识判断，而不是依赖 agent loop 调用外部工具。</li>
+  </ul>
+
+  <h3>5 · 不是网络/限流问题</h3>
+  <p>请求成功完成，returncode=0、stop_reason=end_turn、有 1 290 output_tokens 输出。stderr 仅 157 字节（claude.exe 启动时的常规提示），未观察到 429 / 502 / 超时。这是<strong>模型能力问题</strong>而非<strong>调用层问题</strong>。</p>
+
+</section>
+
+<footer>
+  Benchmark 03 · 引用核查 · 2026-05-10 · 数据来源：
+  <code>opus-answer/citation/run1.md</code> · <code>deepseek-answer/citation/run1.md</code> · <code>mimo-answer/citation/run1.md</code> · <code>kimi-answer/citation/run1.md</code> · <code>panshi100-answer/citation/run1.md</code><br>
+  评分基准：<code>solutions/citation/bugs_reference.md</code>
+</footer>
+
+</body>
+</html>

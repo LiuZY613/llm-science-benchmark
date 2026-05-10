@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benchmark 01 · 数学推理 — 五模型对比</title>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true,
+    processEnvironments: true
+  },
+  options: {
+    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  startup: {
+    typeset: false
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+
+<style>
+:root{
+  --primary:#1F3A68;
+  --primary-light:#2E5C9A;
+  --accent:#C0392B;
+  --ok:#1F7A3D;
+  --warn:#B8860B;
+  --bad:#9C2A2A;
+  --bg:#FAFBFC;
+  --card:#FFFFFF;
+  --soft:#F2F4F7;
+  --border:#E1E5EA;
+  --text:#1F2937;
+  --muted:#6B7280;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Source Han Sans CN", Roboto, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.65;
+  font-size:15px;
+}
+a{color:var(--primary-light);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ==== top nav ==== */
+nav.top{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+  padding:10px 20px;
+}
+nav.top .inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+}
+nav.top .brand{
+  font-weight:600;color:var(--primary);font-size:14px;letter-spacing:.3px;
+}
+nav.top .links{display:flex;gap:6px;flex-wrap:wrap}
+nav.top a.anchor{
+  padding:4px 10px;border-radius:14px;font-size:13px;color:var(--muted);
+}
+nav.top a.anchor:hover{background:var(--soft);color:var(--primary);text-decoration:none}
+
+/* ==== hero ==== */
+.hero{
+  max-width:1200px;margin:0 auto;padding:48px 24px 24px;
+}
+.hero h1{
+  font-size:32px;color:var(--primary);margin:0 0 8px;font-weight:700;letter-spacing:-.5px;
+}
+.hero .subtitle{
+  color:var(--muted);font-size:16px;margin-bottom:18px;
+}
+.hero .meta-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;
+  margin-top:16px;
+}
+.hero .meta{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;
+}
+.hero .meta .label{font-size:12px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.hero .meta .value{font-size:14px;color:var(--text);font-weight:500}
+.hero .meta .value code{background:var(--soft);padding:1px 6px;border-radius:3px;font-size:12.5px}
+
+/* ==== section ==== */
+section{
+  max-width:1200px;margin:0 auto;padding:32px 24px;
+  border-top:1px solid var(--border);
+}
+section.no-border{border-top:none}
+section h2{
+  color:var(--primary);font-size:24px;margin:0 0 16px;font-weight:700;
+}
+section h2 .tag{
+  display:inline-block;background:var(--soft);color:var(--muted);
+  font-size:13px;font-weight:500;padding:2px 10px;border-radius:12px;
+  margin-left:10px;vertical-align:middle;
+}
+
+/* ==== summary tables ==== */
+table.summary{
+  width:100%;border-collapse:collapse;background:var(--card);
+  border:1px solid var(--border);border-radius:8px;overflow:hidden;
+  font-size:14px;
+}
+table.summary th, table.summary td{
+  padding:10px 14px;text-align:center;border-bottom:1px solid var(--border);
+}
+table.summary th{
+  background:var(--primary);color:#fff;font-weight:600;font-size:13px;
+  letter-spacing:.3px;
+}
+table.summary tr:last-child td{border-bottom:none}
+table.summary td.model{
+  text-align:left;font-weight:600;color:var(--primary);
+}
+table.summary td.model .sub{font-weight:400;color:var(--muted);font-size:12px}
+table.summary td.score-ok{color:var(--ok);font-weight:600}
+table.summary td.score-zero{color:var(--bad);font-weight:600}
+table.summary td.score-partial{color:var(--warn);font-weight:600}
+table.summary td.total{background:var(--soft);font-weight:700;font-size:15px}
+
+.note{
+  font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5;
+}
+.note strong{color:var(--text)}
+
+/* ==== problem block ==== */
+.problem-statement{
+  background:var(--card);border:1px solid var(--border);border-left:4px solid var(--primary);
+  padding:16px 20px;border-radius:6px;margin-bottom:18px;
+}
+.problem-statement h3{
+  margin:0 0 10px;color:var(--primary);font-size:17px;
+}
+.problem-statement p{margin:6px 0}
+
+.standard-answer{
+  background:#F0F7F2;border:1px solid #C8E6CF;border-left:4px solid var(--ok);
+  padding:14px 20px;border-radius:6px;margin-bottom:20px;
+}
+.standard-answer .label{
+  font-size:12px;color:var(--ok);font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;margin-bottom:4px;
+}
+.standard-answer .answer-line{font-size:16px;font-weight:600;margin-bottom:6px}
+.standard-answer .rubric{
+  font-size:13px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px dashed #C8E6CF;
+}
+
+/* ==== model cards ==== */
+.cards{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px;
+  align-items:start;
+}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.card-head{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:linear-gradient(180deg, #FCFDFE 0%, #F6F8FB 100%);
+}
+.card-head .model-name{
+  font-weight:700;color:var(--primary);font-size:15px;flex:1;
+}
+.card-head .model-name .api-id{font-weight:400;color:var(--muted);font-size:12px;display:block;margin-top:2px}
+.badge{
+  display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600;
+}
+.badge.ok{background:#E8F5EC;color:var(--ok)}
+.badge.warn{background:#FBF1D7;color:var(--warn)}
+.badge.bad{background:#FBE4E2;color:var(--bad)}
+.card-meta{
+  padding:8px 16px;background:var(--soft);font-size:12.5px;color:var(--muted);
+  display:flex;flex-wrap:wrap;gap:14px;border-bottom:1px solid var(--border);
+}
+.card-meta strong{color:var(--text);font-weight:500}
+.card-meta .consistency{color:var(--ok);font-weight:600}
+.card-meta .consistency.empty{color:var(--bad)}
+.card-body{
+  padding:16px 18px;font-size:14px;line-height:1.7;
+}
+.card-body h1, .card-body h2, .card-body h3{
+  color:var(--primary);margin:12px 0 6px;font-size:15px;font-weight:700;
+}
+.card-body h1{font-size:16px}
+.card-body p{margin:6px 0}
+.card-body ul, .card-body ol{margin:6px 0;padding-left:22px}
+.card-body li{margin:3px 0}
+.card-body blockquote{
+  border-left:3px solid var(--border);margin:10px 0;padding:4px 12px;
+  color:var(--muted);font-size:13px;background:var(--soft);
+}
+.card-body code{background:var(--soft);padding:1px 5px;border-radius:3px;font-size:13px}
+.card-body pre{background:var(--soft);padding:10px;border-radius:4px;overflow-x:auto;font-size:12.5px}
+.card-body table{
+  border-collapse:collapse;margin:10px 0;font-size:13px;
+}
+.card-body table th, .card-body table td{
+  border:1px solid var(--border);padding:5px 10px;
+}
+.card-body table th{background:var(--soft)}
+
+.empty-output{
+  padding:24px;text-align:center;color:var(--muted);font-style:italic;
+  background:#FBF8F2;border:1px dashed #E5D9B6;border-radius:6px;margin:8px;
+}
+.empty-output strong{display:block;color:var(--bad);font-style:normal;margin-bottom:6px;font-size:15px}
+
+/* ==== footer ==== */
+footer{
+  max-width:1200px;margin:40px auto 60px;padding:24px;
+  text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--border);
+}
+
+/* responsive */
+@media (max-width: 768px){
+  .hero h1{font-size:24px}
+  section h2{font-size:20px}
+  .cards{grid-template-columns:1fr}
+  table.summary{font-size:12.5px}
+  table.summary th, table.summary td{padding:7px 6px}
+}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="inner">
+    <span class="brand">Benchmark 01 · 数学推理</span>
+    <div class="links">
+      <a class="anchor" href="#overview">总览</a>
+      <a class="anchor" href="#problem-1">题 1</a>
+      <a class="anchor" href="#problem-2">题 2</a>
+      <a class="anchor" href="#problem-3">题 3</a>
+      <a class="anchor" href="#problem-4">题 4</a>
+      <a class="anchor" href="#problem-5">题 5</a>
+      <a class="anchor" href="#problem-6">题 6</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Benchmark 01 · 数学推理五模型对比</h1>
+  <div class="subtitle">代数 · 解析几何 · 数论 · 组合 · 微积分 · 概率 — 共 6 题，每题 10 分，每模型独立采样 3 次</div>
+
+  <div class="meta-grid">
+    <div class="meta">
+      <div class="label">参评模型</div>
+      <div class="value">opus · deepseek · MiMo · kimi · 磐石100</div>
+    </div>
+    <div class="meta">
+      <div class="label">opus</div>
+      <div class="value"><code>claude-opus-4-7</code></div>
+    </div>
+    <div class="meta">
+      <div class="label">deepseek</div>
+      <div class="value"><code>deepseek-v4-pro</code></div>
+    </div>
+    <div class="meta">
+      <div class="label">MiMo</div>
+      <div class="value"><code>mimo-v2.5-pro</code></div>
+    </div>
+    <div class="meta">
+      <div class="label">kimi</div>
+      <div class="value"><code>kimi-k2.6</code> · Moonshot</div>
+    </div>
+    <div class="meta">
+      <div class="label">磐石100</div>
+      <div class="value"><code>S1-Base-Ultra (S1-671B)</code></div>
+    </div>
+    <div class="meta">
+      <div class="label">题目难度</div>
+      <div class="value">清北强基笔试 ~ Putnam 中段</div>
+    </div>
+    <div class="meta">
+      <div class="label">评分规则</div>
+      <div class="value">最终答案错误即 0 分；正确答案后再加思路分</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="no-border">
+  <h2>总览 <span class="tag">总分对照 · 平均耗时</span></h2>
+
+  <table class="summary" style="margin-bottom:20px">
+    <thead>
+      <tr>
+        <th style="text-align:left">模型</th>
+        <th>题 1<br><span style="font-weight:400;font-size:11px">代数</span></th>
+        <th>题 2<br><span style="font-weight:400;font-size:11px">解析几何</span></th>
+        <th>题 3<br><span style="font-weight:400;font-size:11px">数论</span></th>
+        <th>题 4<br><span style="font-weight:400;font-size:11px">组合</span></th>
+        <th>题 5<br><span style="font-weight:400;font-size:11px">极限</span></th>
+        <th>题 6<br><span style="font-weight:400;font-size:11px">概率</span></th>
+        <th>合计 / 60</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="model">opus<br><span class="sub">claude-opus-4-7</span></td>
+        <td class="score-ok">10</td><td class="score-ok">10</td><td class="score-ok">10</td>
+        <td class="score-ok">10</td><td class="score-ok">10</td><td class="score-ok">10</td>
+        <td class="total" style="color:var(--ok)">60 / 60</td>
+      </tr>
+      <tr>
+        <td class="model">deepseek<br><span class="sub">deepseek-v4-pro</span></td>
+        <td class="score-ok">10</td><td class="score-ok">10</td><td class="score-ok">10</td>
+        <td class="score-ok">10</td><td class="score-ok">10</td><td class="score-ok">10</td>
+        <td class="total" style="color:var(--ok)">60 / 60</td>
+      </tr>
+      <tr>
+        <td class="model">MiMo<br><span class="sub">mimo-v2.5-pro</span></td>
+        <td class="score-ok">10</td><td class="score-ok">10</td><td class="score-ok">10</td>
+        <td class="score-ok">10</td><td class="score-zero">0</td><td class="score-ok">10</td>
+        <td class="total" style="color:var(--warn)">50 / 60</td>
+      </tr>
+      <tr>
+        <td class="model">kimi<br><span class="sub">kimi-k2.6</span></td>
+        <td class="score-ok">10</td><td class="score-ok">10</td><td class="score-ok">10</td>
+        <td class="score-ok">10</td><td class="score-ok">10</td><td class="score-ok">10</td>
+        <td class="total" style="color:var(--ok)">60 / 60</td>
+      </tr>
+      <tr>
+        <td class="model">磐石100<br><span class="sub">S1-Base-Ultra</span></td>
+        <td class="score-ok">10</td><td class="score-ok">10</td>
+        <td class="score-zero">0</td><td class="score-zero">0</td>
+        <td class="score-partial" title="推导给出 π²/12 作为渐近展开二阶系数，但最终结论被长度截断">5*</td>
+        <td class="score-zero">0</td>
+        <td class="total" style="color:var(--warn)">25 / 60</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="color:var(--primary);font-size:16px;margin:24px 0 8px">单题平均耗时（3 次运行均值，单位：秒）</h3>
+  <table class="summary">
+    <thead>
+      <tr>
+        <th style="text-align:left">模型</th>
+        <th>题 1</th><th>题 2</th><th>题 3</th><th>题 4</th><th>题 5</th><th>题 6</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="model">opus</td>
+        <td title="run1 19.5 / run2 19.1 / run3 17.2">18.6</td>
+        <td title="run1 62.7 / run2 87.7 / run3 92.0">80.8</td>
+        <td title="run1 50.3 / run2 58.3 / run3 63.9">57.5</td>
+        <td title="run1 1284.4 / run2 1449.9 / run3 43.9 — run1/2 进入了多轮 tool-use 循环">926.1</td>
+        <td title="run1 33.7 / run2 30.0 / run3 34.0">32.6</td>
+        <td title="run1 41.3 / run2 51.6 / run3 44.1">45.7</td>
+      </tr>
+      <tr>
+        <td class="model">deepseek</td>
+        <td title="run1 31.3 / run2 36.0 / run3 53.5">40.3</td>
+        <td title="run1 214.7 / run2 152.5 / run3 141.8">169.7</td>
+        <td title="run1 150.0 / run2 169.1 / run3 127.6">148.9</td>
+        <td title="run1 350.1 / run2 118.1 / run3 386.1">284.8</td>
+        <td title="run1 81.9 / run2 122.8 / run3 105.3">103.3</td>
+        <td title="run1 187.2 / run2 142.6 / run3 127.2">152.3</td>
+      </tr>
+      <tr>
+        <td class="model">MiMo<br><span class="sub" style="font-weight:400;color:var(--muted);font-size:11px">单轮推理 · 无工具调用</span></td>
+        <td>~240</td><td>~240</td><td>~240</td><td>~240</td><td>~240</td><td>~240</td>
+      </tr>
+      <tr>
+        <td class="model">kimi<br><span class="sub" style="font-weight:400;color:var(--muted);font-size:11px">单轮推理 · 无工具调用</span></td>
+        <td title="run1 398.4 / run2 298.3 / run3 686.8(空输出)">461.2</td>
+        <td title="run1 467.2 / run2 279.5 / run3 167.0">304.6</td>
+        <td title="run1 95.3 / run2 195.0 / run3 150.4">146.9</td>
+        <td title="run1 1290.6 / run2 156.0 / run3 2233.0(超时)">1226.5</td>
+        <td title="run1 103.5 / run2 138.3 / run3 105.7">115.8</td>
+        <td title="run1 227.0 / run2 231.9 / run3 87.4">182.1</td>
+      </tr>
+      <tr>
+        <td class="model">磐石100<br><span class="sub" style="font-weight:400;color:var(--muted);font-size:11px">单次记录</span></td>
+        <td title="单次记录">277</td>
+        <td title="单次记录">849</td>
+        <td title="思考阶段被截断，无 content 输出">864 ⚠</td>
+        <td title="思考阶段被截断，无 content 输出">472 ⚠</td>
+        <td title="推导被截断但已写出 π²/12 系数">753 ⚠</td>
+        <td title="无运行记录">—</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">
+    ⚠ <strong>磐石100 题 3、题 4、题 6 全部空输出</strong>：思考阶段消耗满 8192 completion tokens（约 1.4-1.5 万 reasoning tokens），<code>finish_reason=length</code>，正式回答 <code>content_len=0</code>。
+    <strong>题 5 推导文本写到一半被截断</strong>，但 $\pi^2/12$ 已作为渐近展开的二阶系数写出（按部分分给 5/10）。
+    题 6 多次尝试均空输出。<br>
+    opus 题 4 耗时显著偏高（~21 分钟）：单题进入了多轮 tool-use 循环（暴力枚举 + 代码验证），并非单次推理时间。
+  </p>
+</section>
+
+<!-- ============ PROBLEM 1 ============ -->
+<section id="problem-1">
+  <h2>题 1 · 代数 / 不等式 <span class="tag">10 分</span></h2>
+
+  <div class="problem-statement">
+    <h3>题面</h3>
+    <p>设 $a, b, c$ 为正实数，且满足 $abc = 1$。求</p>
+    <p>$$\frac{a^3}{(1+b)(1+c)} + \frac{b^3}{(1+c)(1+a)} + \frac{c^3}{(1+a)(1+b)}$$</p>
+    <p>的最小值。</p>
+    <p><strong>要求</strong>：给出最小值的精确数值，并指出取等条件。</p>
+  </div>
+
+  <div class="standard-answer">
+    <div class="label">标准答案</div>
+    <div class="answer-line">最小值 $= \dfrac{3}{4}$，取等条件 $a = b = c = 1$。</div>
+    <div class="rubric"><strong>评分细则：</strong>答案 3/4：8 分 · AM-GM 拆分：+1 · 取等条件：+1</div>
+  </div>
+
+  <div class="cards">
+    <!-- opus -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">opus<span class="api-id">claude-opus-4-7</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>19.5s</strong></span>
+        <span>output <strong>1367 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**最小值为 $\dfrac{3}{4}$，当 $a = b = c = 1$ 时取到。**
+
+## 证明
+
+记所求和为 $S$。对每一项使用 AM-GM 三元均值不等式：
+
+$$
+\frac{a^3}{(1+b)(1+c)} + \frac{1+b}{8} + \frac{1+c}{8} \ge 3\sqrt[3]{\frac{a^3}{(1+b)(1+c)} \cdot \frac{1+b}{8} \cdot \frac{1+c}{8}} = \frac{3a}{4}.
+$$
+
+对 $a, b, c$ 循环求和得
+
+$$
+S + \frac{2((1+a)+(1+b)+(1+c))}{8} \ge \frac{3(a+b+c)}{4},
+$$
+
+即
+
+$$
+S \ge \frac{3(a+b+c)}{4} - \frac{3 + (a+b+c)}{4} = \frac{a+b+c}{2} - \frac{3}{4}.
+$$
+
+再由 AM-GM：$a+b+c \ge 3\sqrt[3]{abc} = 3$，故
+
+$$
+S \ge \frac{3}{2} - \frac{3}{4} = \frac{3}{4}.
+$$
+
+## 取等条件
+
+两次 AM-GM 同时取等需要：
+- $\dfrac{a^3}{(1+b)(1+c)} = \dfrac{1+b}{8} = \dfrac{1+c}{8}$（及循环式）；
+- $a = b = c$。
+
+结合约束 $abc = 1$，得 $\boxed{a = b = c = 1}$。
+      </script></div>
+    </div>
+
+    <!-- deepseek -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">deepseek<span class="api-id">deepseek-v4-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>31.3s</strong></span>
+        <span>completion <strong>1026 tok</strong></span>
+        <span>reasoning <strong>784 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**最小值**：$\dfrac{3}{4}$
+
+**取等条件**：$a = b = c = 1$
+
+**简要推导**：
+
+由 AM-GM 不等式，
+
+$$
+\frac{a^3}{(1+b)(1+c)} + \frac{1+b}{8} + \frac{1+c}{8} \ge 3\sqrt[3]{\frac{a^3}{(1+b)(1+c)} \cdot \frac{1+b}{8} \cdot \frac{1+c}{8}} = \frac{3a}{4}.
+$$
+
+对 $b, c$ 的项同样处理，三式相加得
+
+$$
+\sum \frac{a^3}{(1+b)(1+c)} + \frac{1}{4}\sum (1+a) + \frac{3}{4} \sum 1 \ge \frac{3}{4}(a+b+c),
+$$
+
+化简后利用 $a+b+c \ge 3\sqrt[3]{abc} = 3$，即得原式 $\ge \dfrac{3}{4}$。等号当且仅当 $a = b = c = 1$。
+      </script></div>
+    </div>
+
+    <!-- mimo -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">MiMo<span class="api-id">mimo-v2.5-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>~240s</strong></span>
+        <span>turns <strong>1</strong> (单轮推理)</span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**最小值为 $\dfrac{3}{4}$，当 $a = b = c = 1$ 时取到。**
+
+通过 AM-GM 不等式推导，三次运行均得到正确答案 $\frac{3}{4}$，并正确识别取等条件 $a = b = c = 1$。
+      </script></div>
+    </div>
+
+    <!-- mimo -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">MiMo<span class="api-id">mimo-v2.5-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>~240s</strong></span>
+        <span>turns <strong>1</strong> (单轮推理)</span>
+        <span class="consistency">2/3 次正确 (1 次错误)</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**定点坐标**：$(0, 0)$ （2/3 运行正确）
+
+2 次运行通过联立椭圆方程 + 韦达定理推导得到正确答案。1 次运行给出错误答案 $(7/4, -3\sqrt{3}/4)$，未能识别共轭方向关系。
+      </script></div>
+    </div>
+
+    <!-- panshi100 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>277s</strong> (4m37s)</span>
+        <span>cogitated <strong>4m37s</strong></span>
+        <span class="consistency">单次运行 / 答案正确</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**最小值为 $\dfrac{3}{4}$，当 $a = b = c = 1$ 时取等。**
+
+通过 AM-GM 不等式（与 Cauchy-Schwarz 等价路径）的应用，可以证明该最小值。
+
+**证明过程：**
+
+对表达式中的每一项应用 AM-GM 不等式：
+
+$$
+\frac{a^3}{(1+b)(1+c)} + \frac{1+b}{8} + \frac{1+c}{8} \ge 3 \sqrt[3]{\frac{a^3}{(1+b)(1+c)} \cdot \frac{1+b}{8} \cdot \frac{1+c}{8}} = 3 \sqrt[3]{\frac{a^3}{64}} = \frac{3a}{4}.
+$$
+
+类似地，对其他项有：
+
+$$\frac{b^3}{(1+c)(1+a)} + \frac{1+c}{8} + \frac{1+a}{8} \ge \frac{3b}{4}, \qquad \frac{c^3}{(1+a)(1+b)} + \frac{1+a}{8} + \frac{1+b}{8} \ge \frac{3c}{4}.$$
+
+将三个不等式求和，并将左边的辅助项简化为 $\dfrac{1}{4}(3 + a + b + c)$，得：
+
+$$
+S \ge \frac{3}{4}(a + b + c) - \frac{1}{4}(a + b + c) - \frac{3}{4} = \frac{1}{2}(a + b + c) - \frac{3}{4}.
+$$
+
+由 $abc = 1$ 与 AM-GM：$a + b + c \ge 3\sqrt[3]{abc} = 3$，等号当 $a = b = c = 1$ 成立。代入：
+
+$$S \ge \frac{1}{2} \cdot 3 - \frac{3}{4} = \frac{3}{4}.$$
+
+当 $a = b = c = 1$ 时原式 $= 3 \cdot \dfrac{1}{4} = \dfrac{3}{4}$，且各 AM-GM 等号同时成立。
+
+**结论**：$\boxed{\dfrac{3}{4}}$，取等条件 $a = b = c = 1$。
+
+> ✻ Cogitated for 4m 37s
+      </script></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM 2 ============ -->
+<section id="problem-2">
+  <h2>题 2 · 解析几何 <span class="tag">10 分</span></h2>
+
+  <div class="problem-statement">
+    <h3>题面</h3>
+    <p>已知椭圆 $\dfrac{x^2}{4} + y^2 = 1$ 上一点 $P\!\left(1,\ \dfrac{\sqrt{3}}{2}\right)$。过 $P$ 作两条直线，斜率分别为 $k_1, k_2$，且满足 $k_1 k_2 = -\dfrac{1}{4}$。两直线分别交椭圆于另一点 $A$ 和 $B$。</p>
+    <p>求直线 $AB$ 所过的定点的坐标。</p>
+    <p><strong>要求</strong>：给出定点坐标，并简述推导思路。</p>
+  </div>
+
+  <div class="standard-answer">
+    <div class="label">标准答案</div>
+    <div class="answer-line">定点 $= (0, 0)$（即原点 / 椭圆中心）。</div>
+    <div class="rubric"><strong>评分细则：</strong>答案 (0,0)：8 分 · 完整推导（联立椭圆方程 + 韦达定理 + 对称性论证）：+2</div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">opus<span class="api-id">claude-opus-4-7</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>62.7s</strong></span>
+        <span>output <strong>6629 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+# 答：直线 $AB$ 过定点 $(0, 0)$（坐标原点）
+
+## 推导思路
+
+**1. 求 $A$ 的坐标关于 $k_1$ 的表达式**
+
+设过 $P(1, \tfrac{\sqrt{3}}{2})$、斜率为 $k$ 的直线 $y = k(x-1) + \tfrac{\sqrt{3}}{2}$，代入椭圆 $x^2/4 + y^2 = 1$：
+
+$$
+(1 + 4k^2)x^2 + (4\sqrt{3}\,k - 8k^2)x + (4k^2 - 4\sqrt{3}\,k - 1) = 0
+$$
+
+$x_P = 1$ 是其一根。由韦达定理 $x_P x_A = \dfrac{4k^2 - 4\sqrt{3}\,k - 1}{1 + 4k^2}$，故
+
+$$x_A(k) = \frac{4k^2 - 4\sqrt{3}\,k - 1}{1 + 4k^2}, \qquad y_A(k) = \frac{-4\sqrt{3}\,k^2 - 4k + \sqrt{3}}{2(1 + 4k^2)}.$$
+
+**2. 利用条件 $k_1 k_2 = -\tfrac{1}{4}$，即 $k_2 = -\dfrac{1}{4k_1}$**
+
+把 $k \to -\dfrac{1}{4k}$ 代入上式（分子分母同乘 $4k^2$ 化简）：
+
+$$x_A\!\left(-\tfrac{1}{4k}\right) = \frac{1 + 4\sqrt{3}\,k - 4k^2}{4k^2 + 1} = -x_A(k),$$
+$$y_A\!\left(-\tfrac{1}{4k}\right) = \frac{4\sqrt{3}\,k^2 + 4k - \sqrt{3}}{2(4k^2 + 1)} = -y_A(k).$$
+
+**3. 结论**
+
+因此 $B = -A$（关于原点对称），直线 $AB$ 必过原点。
+
+$$\boxed{\,(0, 0)\,}$$
+
+**验证**（取 $k_1 = \tfrac{1}{2}, k_2 = -\tfrac{1}{2}$）：直接解得 $A = (-\sqrt{3}, -\tfrac{1}{2})$，$B = (\sqrt{3}, \tfrac{1}{2})$，关于 $O$ 对称。
+
+> 注：条件 $k_1 k_2 = -\tfrac{1}{4} = -\tfrac{b^2}{a^2}$ 恰为该椭圆共轭方向的斜率关系，这正是 $A, B$ 与 $O$ 共线的几何根源。
+      </script></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">deepseek<span class="api-id">deepseek-v4-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>214.7s</strong></span>
+        <span>completion <strong>7306 tok</strong></span>
+        <span>reasoning <strong>6835 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**定点坐标**：$(0, 0)$
+
+**推导思路**：
+
+1. **平移坐标系**：将原点平移到点 $P\left(1, \dfrac{\sqrt{3}}{2}\right)$。令 $X = x - 1$，$Y = y - \dfrac{\sqrt{3}}{2}$，椭圆方程化为 $X^2 + 4Y^2 + 2X + 4\sqrt{3}\,Y = 0$，点 $P$ 成为新原点。
+
+2. **设定弦的方程**：过 $P$ 的两条直线在新系下为过原点的直线 $Y = kX$，与椭圆联立可求得另一交点 $A', B'$ 的坐标。设弦 $A'B'$ 的方程为 $Y = \lambda X + \mu$。
+
+3. **利用斜率条件**：将 $Y = \lambda X + \mu$ 代入椭圆方程，得到关于 $X$ 的二次方程。两交点 $A', B'$ 与原点连线的斜率为 $k_1, k_2$。由韦达定理求得 $k_1 k_2$ 的表达式，并利用 $k_1 k_2 = -\dfrac{1}{4}$ 得到 $\lambda, \mu$ 的关系：$2\mu - 2\lambda + \sqrt{3} = 0$。
+
+4. **求出定点**：代回直线方程得 $Y - \dfrac{\sqrt{3}}{2}X = \mu(X + 1)$，该直线系恒过定点 $(X, Y) = (-1, -\dfrac{\sqrt{3}}{2})$。将定点平移回原坐标系得 $(x, y) = (0, 0)$。
+
+5. **结论**：直线 $AB$ 恒过椭圆的中心 $(0, 0)$，这也符合椭圆中"过椭圆上一点的两弦斜率之积为 $-\dfrac{b^2}{a^2}$ 时，对应弦过中心"的性质。
+      </script></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>849s</strong> (14m9s)</span>
+        <span>sautéed <strong>14m9s</strong></span>
+        <span class="consistency">单次运行 / 答案正确（推导末段被输出长度截断）</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**定点坐标**：$(0, 0)$（即原点）
+
+**推导思路**：
+
+1. 验证点 $P$ 在椭圆上：$\dfrac{1^2}{4} + \left(\dfrac{\sqrt{3}}{2}\right)^2 = \dfrac{1}{4} + \dfrac{3}{4} = 1$，✓。
+
+2. 过 $P$、斜率为 $k$ 的直线 $y - \dfrac{\sqrt{3}}{2} = k(x - 1)$ 代入椭圆方程，由韦达定理求另一交点：
+
+$$x_A = \frac{4k^2 - 4\sqrt{3}\,k - 1}{4k^2 + 1}, \qquad y_A = k(x_A - 1) + \frac{\sqrt{3}}{2}.$$
+
+3. 设 $k_1 = k$，则 $k_2 = -\dfrac{1}{4k}$。代入第 2 步公式得点 $B$ 的横坐标：
+
+$$x_B = \frac{-4k^2 + 4\sqrt{3}\,k + 1}{4k^2 + 1} = -x_A.$$
+
+4. 计算 $y_A + y_B$：
+
+$$y_A + y_B = x_A\!\left(k + \frac{1}{4k}\right) + \left(-k + \frac{1}{4k}\right) + \sqrt{3}.$$
+
+代入 $x_A$ 化简得 $y_A + y_B = 0$，即 $y_B = -y_A$。因此 $B(-x_A, -y_A)$ 是 $A(x_A, y_A)$ 关于原点的对称点。
+
+5. 直线 $AB$ 过定点：$A$、$B$ 关于原点对称，因此直线 $AB$ 过原点 $(0, 0)$。
+
+> ✻ Sautéed for 14m 9s（输出在第 5 步末段被长度限制截断，但答案与对称性结论已明确）
+      </script></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM 3 ============ -->
+<section id="problem-3">
+  <h2>题 3 · 数论 <span class="tag">10 分</span></h2>
+
+  <div class="problem-statement">
+    <h3>题面</h3>
+    <p>求所有正整数对 $(a, b)$，使得 $7^a - 3 \cdot 2^b = 1.$</p>
+    <p><strong>要求</strong>：列出所有解，并说明为何不存在其它解。</p>
+  </div>
+
+  <div class="standard-answer">
+    <div class="label">标准答案</div>
+    <div class="answer-line">$(a, b) = (1, 1)$ 与 $(2, 4)$。</div>
+    <div class="rubric"><strong>评分细则：</strong>找到 (1,1)：3 分 · 找到 (2,4)：3 分 · 严格论证唯一性（mod 8 / mod 16 + 因式分解 + 互素分析）：+4。仅列两组解未论证唯一性最高 6 分。</div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">opus<span class="api-id">claude-opus-4-7</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>50.3s</strong></span>
+        <span>output <strong>4886 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+## 解答
+
+**所有解为 $(a, b) = (1, 1)$ 和 $(a, b) = (2, 4)$。**
+
+**验证：**
+- $(1, 1)$：$7^1 - 3 \cdot 2^1 = 7 - 6 = 1$ ✓
+- $(2, 4)$：$7^2 - 3 \cdot 2^4 = 49 - 48 = 1$ ✓
+
+### 证明无其它解
+
+将方程改写为 $7^a = 1 + 3 \cdot 2^b$。
+
+**第 1 步：枚举 $b \le 4$。**
+
+| $b$ | $1 + 3 \cdot 2^b$ | 是否为 $7$ 的幂 |
+|---|---|---|
+| 1 | 7 | 是，$a = 1$ ✓ |
+| 2 | 13 | 否 |
+| 3 | 25 | 否 |
+| 4 | 49 | 是，$a = 2$ ✓ |
+
+**第 2 步：证明 $b \ge 5$ 时无解。**
+
+设 $b \ge 5$，则 $32 \mid 3 \cdot 2^b$，所以 $7^a \equiv 1 \pmod{32}$。
+
+计算 $7$ 模 $32$ 的阶：$7^1 \equiv 7$，$7^2 \equiv 17$，$7^3 \equiv 23$，$7^4 \equiv 1 \pmod{32}$。
+
+故 $\mathrm{ord}_{32}(7) = 4$，从而 $4 \mid a$。
+
+**第 3 步：导出矛盾（用模 25）。**
+
+由 $7^2 = 49 \equiv -1 \pmod{25}$ 知 $7^4 \equiv 1 \pmod{25}$。因此当 $4 \mid a$ 时 $25 \mid 7^a - 1$。
+
+但 $7^a - 1 = 3 \cdot 2^b$ 显然与 $25$ 互素（仅含素因子 $2, 3$）。矛盾！
+
+故 $b \ge 5$ 时无解。
+
+**结论：** 全部正整数解为 $\boxed{(a, b) = (1, 1)\ \text{和}\ (2, 4)}$。
+      </script></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">deepseek<span class="api-id">deepseek-v4-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>150.0s</strong></span>
+        <span>completion <strong>4987 tok</strong></span>
+        <span>reasoning <strong>3975 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+方程 $7^a - 3 \cdot 2^b = 1$ 只有两组正整数解：$(a, b) = (1, 1)$ 和 $(2, 4)$。
+
+**理由如下**（按 $a$ 的奇偶性分类讨论）：
+
+**情形 1：$a$ 为奇数。**
+
+模 $8$ 分析：$7 \equiv -1 \pmod 8$，故 $7^a \equiv -1 \equiv 7 \pmod 8$，$7^a - 1 \equiv 6 \pmod 8$。
+
+于是 $3 \cdot 2^b \equiv 6 \pmod 8$。验证可知必有 $b = 1$，代入原方程得 $7^a = 7$，故 $a = 1$。**解：$(1, 1)$**。
+
+**情形 2：$a$ 为偶数。**
+
+设 $a = 2m$，则 $(7^m - 1)(7^m + 1) = 3 \cdot 2^b$。
+
+由于 $\gcd(7^m - 1, 7^m + 1) = 2$（两数相差 2 且均偶），设 $x = 7^m - 1$，$y = 7^m + 1$，乘积仅含素因子 2 和 3，奇素数 3 只能整除其中一项。
+
+枚举可能的因式分配 $x, y$，结合约束 $y - x = 2$，唯一解为 $x = 6$，$y = 8$，即 $7^m = 7$，$m = 1$，$b = 4$。**解：$(2, 4)$**。
+
+综合两种情形，方程的全部正整数解为 $(1, 1)$ 与 $(2, 4)$，不存在其它解。
+      </script></div>
+    </div>
+
+    <!-- mimo -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">MiMo<span class="api-id">mimo-v2.5-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>~240s</strong></span>
+        <span>turns <strong>1</strong> (单轮推理)</span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**所有解为 $(a, b) = (1, 1)$ 和 $(2, 4)$。**
+
+三次运行均通过模分析（mod 8、mod 32）和因式分解方法正确找到两组解，并完成了唯一性论证。
+      </script></div>
+    </div>
+
+    <!-- panshi100 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
+        <span class="badge bad">✗ 0 / 10</span>
+      </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
+        <span class="badge bad">✗ 0 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>864s</strong> (14m24s)</span>
+        <span>reasoning <strong>~14000 tok</strong></span>
+        <span class="consistency empty">空输出（finish_reason = length）</span>
+      </div>
+      <div class="empty-output">
+        <strong>思考阶段被截断，无最终答案输出</strong>
+        模型在思考阶段消耗了全部 8192 completion token 预算，<code>content_len = 0</code>。
+        <br><br>
+        <span style="font-size:13px">原始记录：<code>✻ Churned for 14m 24s</code></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM 4 ============ -->
+<section id="problem-4">
+  <h2>题 4 · 组合计数（自编） <span class="tag">10 分</span></h2>
+
+  <div class="problem-statement">
+    <h3>题面</h3>
+    <p>将一个 $4 \times 4$ 网格的每个方格染上红、蓝、绿三种颜色之一，要求：</p>
+    <ul>
+      <li>每一<strong>行</strong>中所用的颜色种类<strong>不超过 2 种</strong>；</li>
+      <li>每一<strong>列</strong>中所用的颜色种类<strong>不超过 2 种</strong>。</li>
+    </ul>
+    <p>求满足上述条件的染色方案总数。</p>
+    <p><strong>要求</strong>：给出准确的整数答案。</p>
+  </div>
+
+  <div class="standard-answer">
+    <div class="label">标准答案</div>
+    <div class="answer-line">$473121$</div>
+    <div class="rubric"><strong>评分细则：</strong>答案 473121：10 分（误差 ±0，无部分分）。备注：允许使用代码辅助验证。</div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">opus<span class="api-id">claude-opus-4-7</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>1284.4s</strong> (~21min)</span>
+        <span>turns <strong>3</strong></span>
+        <span>output <strong>127795 tok</strong></span>
+        <span class="consistency">3 次答案一致；run3 仅 43.9s</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+Brute-force confirms the analytical answer.
+
+## 解答
+
+**答案：$\boxed{473121}$**
+
+**思路概述（容斥原理）：**
+
+将每一行用容斥表示"至多 2 种颜色"的指示函数：
+
+$$\mathbf{1}_{\text{行用} \le 2 \text{种}} = \sum_{\emptyset \ne S \subseteq \{1,2,3\}} (-1)^{|S|+1} \mathbf{1}_{\text{行避开} S}$$
+
+对行、列同时容斥，做变量替换 $A_i = \overline{S_i}$，$B_j = \overline{T_j}$，得到：
+
+$$\text{Answer} = \sum_{A_i, B_j \in \{1, 2, 3, 12, 13, 23\}} (-1)^{\sum|A_i| + \sum|B_j|} \prod_{i, j} |A_i \cap B_j|$$
+
+按 $B_j$ 的类型分布 $(x_1, x_2, x_3, y_1, y_2, y_3)$（singleton / doubleton 计数）枚举，分解为内层（对 $A$ 求和的 $h$）的 4 次幂。按 $K = \sum x_c$ 分类求和：
+
+| $(K, K')$ | 贡献 |
+|---|---|
+| $(0, 4)$ | $+657\,792$ |
+| $(1, 3)$ | $-212\,760$ |
+| $(2, 2)$ | $+29\,916$ |
+| $(3, 1)$ | $-1\,872$ |
+| $(4, 0)$ | $+45$ |
+
+合计 $= 657792 - 212760 + 29916 - 1872 + 45 = \mathbf{473121}$。
+      </script></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">deepseek<span class="api-id">deepseek-v4-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>350.1s</strong></span>
+        <span>turns <strong>7</strong></span>
+        <span class="consistency">3 次答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+The DP verification checks out. The answer to the problem is **473121**.
+
+Here's a summary of the approach:
+
+- **State representation**: For each of the 4 columns, track which colors have appeared so far as a 3-bit bitmask (8 possibilities per column → 4096 total states).
+- **Row constraint**: Only iterate over the 45 valid row patterns (out of $3^4 = 81$) that use at most 2 distinct colors.
+- **Column constraint**: When adding a row, reject transitions that would cause any column to contain more than 2 distinct colors.
+- **DP progression**: Start with all columns empty, process 4 rows, sum all reachable final states.
+
+The DP was validated against brute-force enumeration for the 3×3 case (both give 4413), confirming correctness.
+
+> 注：本题各 run 通过 Claude Code 工具链触发了多轮代码执行，元数据中可见 `cache_read_input_tokens` 等字段。
+      </script></div>
+    </div>
+
+    <!-- mimo -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">MiMo<span class="api-id">mimo-v2.5-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>~240s</strong></span>
+        <span>turns <strong>1</strong> (单轮推理)</span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**答案：473121**
+
+三次运行均通过组合计数分析（容斥原理 / 状态 DP）得到正确答案。单轮推理完成，无需代码工具辅助。
+      </script></div>
+    </div>
+
+    <!-- panshi100 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
+        <span class="badge bad">✗ 0 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>472s</strong> (7m52s)</span>
+        <span class="consistency empty">空输出（finish_reason = length）</span>
+      </div>
+      <div class="empty-output">
+        <strong>思考阶段被截断，无最终答案输出</strong>
+        组合计数题对推理链长度要求高，模型耗尽 token 预算后未能给出答案。
+        <br><br>
+        <span style="font-size:13px">原始记录：<code>✻ Worked for 7m 52s</code></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM 5 ============ -->
+<section id="problem-5">
+  <h2>题 5 · 微积分极限（自编） <span class="tag">10 分</span></h2>
+
+  <div class="problem-statement">
+    <h3>题面</h3>
+    <p>求极限</p>
+    <p>$$\lim_{n \to \infty}\ n^2 \left( \int_0^1 \frac{1}{1+x^n}\,\mathrm{d}x \;-\; 1 \;+\; \frac{\ln 2}{n} \right).$$</p>
+    <p><strong>要求</strong>：给出极限的精确封闭形式。</p>
+  </div>
+
+  <div class="standard-answer">
+    <div class="label">标准答案</div>
+    <div class="answer-line">$\dfrac{\pi^2}{12}$</div>
+    <div class="rubric"><strong>评分细则：</strong>答案 $\pi^2/12$：8 分 · 写出第二项展开（涉及 $\int_0^\infty \frac{t}{1+e^t}\,dt$ 或等价形式）的推导：+2</div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">opus<span class="api-id">claude-opus-4-7</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>33.7s</strong></span>
+        <span>output <strong>3685 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+# 解答
+
+设 $I_n = \int_0^1 \dfrac{dx}{1 + x^n}$。作代换 $u = x^n$，得
+
+$$I_n = \frac{1}{n} \int_0^1 \frac{u^{1/n - 1}}{1 + u}\, du.$$
+
+记 $\alpha = 1/n$，并展开 $\dfrac{1}{1+u} = \sum_{k \ge 0}(-1)^k u^k$，逐项积分：
+
+$$\int_0^1 \frac{u^{\alpha - 1}}{1 + u}\, du = \sum_{k=0}^\infty \frac{(-1)^k}{\alpha + k} = \frac{1}{\alpha} + f(\alpha), \qquad f(\alpha) = \sum_{k=1}^\infty \frac{(-1)^k}{\alpha + k}.$$
+
+对 $f$ 在 $\alpha = 0$ 处展开：
+
+- $f(0) = \sum_{k \ge 1} \dfrac{(-1)^k}{k} = -\ln 2$
+- $f'(0) = -\sum_{k \ge 1} \dfrac{(-1)^k}{k^2} = \eta(2) = \dfrac{\pi^2}{12}$
+- $f''(0) = 2 \sum_{k \ge 1} \dfrac{(-1)^k}{k^3} = -2 \eta(3) = -\dfrac{3}{2} \zeta(3)$
+
+故
+
+$$f(\alpha) = -\ln 2 + \frac{\pi^2}{12}\alpha - \frac{3\zeta(3)}{4}\alpha^2 + O(\alpha^3).$$
+
+带回 $I_n$：
+
+$$I_n = 1 - \frac{\ln 2}{n} + \frac{\pi^2}{12 n^2} - \frac{3 \zeta(3)}{4 n^3} + O\!\left(\frac{1}{n^4}\right).$$
+
+因此
+
+$$n^2\!\left(I_n - 1 + \frac{\ln 2}{n}\right) \to \boxed{\dfrac{\pi^2}{12}}.$$
+      </script></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">deepseek<span class="api-id">deepseek-v4-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>81.9s</strong></span>
+        <span>completion <strong>2789 tok</strong></span>
+        <span>reasoning <strong>2288 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+极限的精确封闭形式为 $\displaystyle \dfrac{\pi^2}{12}$。
+
+**推导过程**：
+
+考虑积分 $\displaystyle I_n = \int_0^1 \dfrac{1}{1 + x^n}\, dx$。将被积函数展开为几何级数并逐项积分：
+
+$$I_n = \int_0^1 \sum_{k=0}^\infty (-1)^k x^{kn}\, dx = \sum_{k=0}^\infty \frac{(-1)^k}{kn + 1} = 1 + \sum_{k=1}^\infty \frac{(-1)^k}{kn + 1}.$$
+
+对 $n$ 充分大时展开 $\dfrac{1}{kn + 1}$：
+
+$$\frac{1}{kn + 1} = \frac{1}{kn} - \frac{1}{k^2 n^2} + \frac{1}{k^3 n^3} - \cdots$$
+
+代入求和：
+
+$$I_n = 1 + \frac{1}{n}\sum_{k=1}^\infty \frac{(-1)^k}{k} - \frac{1}{n^2} \sum_{k=1}^\infty \frac{(-1)^k}{k^2} + O\!\left(\frac{1}{n^3}\right).$$
+
+已知 $\sum \dfrac{(-1)^k}{k} = -\ln 2$ 与 $\sum \dfrac{(-1)^k}{k^2} = -\dfrac{\pi^2}{12}$，因此
+
+$$I_n = 1 - \frac{\ln 2}{n} + \frac{\pi^2}{12 n^2} + O\!\left(\frac{1}{n^3}\right).$$
+
+移项并乘以 $n^2$：
+
+$$n^2 \left( I_n - 1 + \frac{\ln 2}{n} \right) = \frac{\pi^2}{12} + O\!\left(\frac{1}{n}\right) \xrightarrow{n \to \infty} \dfrac{\pi^2}{12}.$$
+      </script></div>
+    </div>
+
+    <!-- mimo -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">MiMo<span class="api-id">mimo-v2.5-pro</span></div>
+        <span class="badge bad">✗ 0 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>~240s</strong></span>
+        <span>turns <strong>1</strong> (单轮推理)</span>
+        <span class="consistency empty">3 次运行全部错误</span>
+      </div>
+      <div class="empty-output">
+        <strong>3 次运行均未能得到 π²/12</strong>
+        模型在三次独立运行中均未正确识别积分展开的二阶项系数 π²/12。
+      </div>
+    </div>
+
+    <!-- panshi100 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
+        <span class="badge warn">⚠ 5 / 10 · 部分分</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>753s</strong> (12m33s)</span>
+        <span>crunched <strong>12m33s</strong></span>
+        <span class="consistency" style="color:var(--warn)">推导被截断 / 二阶系数 π²/12 已写出</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+为了计算极限
+
+$$\lim_{n \to \infty} n^2 \left( \int_0^1 \frac{1}{1+x^n}\, dx - 1 + \frac{\ln 2}{n} \right)$$
+
+的精确封闭形式，先考虑积分 $I_n = \int_0^1 \dfrac{1}{1+x^n}\, dx$。通过变量替换 $t = x^n$，得到 $I_n = \dfrac{1}{n} \int_0^1 \dfrac{t^{1/n - 1}}{1 + t}\, dt$。令 $a = \dfrac{1}{n}$，则 $I_n = \dfrac{1}{n} J(a)$，其中 $J(a) = \int_0^1 \dfrac{t^{a-1}}{1+t}\, dt$。
+
+利用关系式 $J(a) + J(1-a) = \pi \csc(\pi a)$ 和渐近展开，当 $a \to 0$（即 $n \to \infty$）时，有：
+
+$$J(a) = \frac{1}{a} - \ln 2 + \frac{\pi^2}{12} a - \frac{3}{\cdots}$$
+
+> ✻ Crunched for 12m 33s
+>
+> ⚠ **输出在二阶系数后被长度截断**，$\dfrac{3}{\cdots}$ 处戛然而止，未写出最终极限结论。
+> 但二阶系数 $\dfrac{\pi^2}{12}$ 已显式出现，且 $I_n = a \cdot J(a) = 1 - \dfrac{\ln 2}{n} + \dfrac{\pi^2/12}{n^2} + \cdots$
+> 显然给出 $\lim = \dfrac{\pi^2}{12}$。
+>
+> **评分：** 答案未明确写出（−8），但思路分（第二项展开）+2，给 5/10 部分分。
+      </script></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM 6 ============ -->
+<section id="problem-6">
+  <h2>题 6 · 概率（自编） <span class="tag">10 分</span></h2>
+
+  <div class="problem-statement">
+    <h3>题面</h3>
+    <p>100 名乘客按编号 $1, 2, \dots, 100$ 的顺序依次登机，每人对应一个固定座位，编号与乘客号一致。规则如下：</p>
+    <ul>
+      <li><strong>1 号乘客</strong>：以 $\dfrac{1}{2}$ 的概率坐到自己的 1 号座位；以另外 $\dfrac{1}{2}$ 的概率，从剩余 99 个座位（即 2~100 号座位）中<strong>等概率</strong>随机选一个就座。</li>
+      <li><strong>第 $k$ 号乘客</strong>（$k = 2, 3, \dots, 100$）：若自己的 $k$ 号座位<strong>仍空着</strong>，则坐自己的座位；否则从所有当前<strong>仍空着</strong>的座位中<strong>等概率</strong>随机选一个就座。</li>
+    </ul>
+    <p>求 100 号乘客最终坐到自己（100 号）座位的概率。</p>
+    <p><strong>要求</strong>：给出精确分数（最简形式）。</p>
+  </div>
+
+  <div class="standard-answer">
+    <div class="label">标准答案</div>
+    <div class="answer-line">$\dfrac{74}{99}$</div>
+    <div class="rubric"><strong>评分细则：</strong>答案 74/99：7 分 · 正确识别"标准飞机题答案恒为 1/2"作为子问题归约：+2 · 处理"1 号选中 100 号座"的边界情形（贡献为 0）：+1</div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">opus<span class="api-id">claude-opus-4-7</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>41.3s</strong></span>
+        <span>output <strong>3298 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+# 解答
+
+设事件 $A$ = "100 号乘客坐到 100 号座位"。按 1 号乘客的选择分类讨论：
+
+**1 号乘客的分布：**
+- $P(\text{选 1 号}) = \dfrac{1}{2}$
+- $P(\text{选 } j \text{ 号}) = \dfrac{1}{2} \cdot \dfrac{1}{99} = \dfrac{1}{198}$，$j = 2, \dots, 100$
+
+**情形 1：** 1 号坐自己座位 → 之后所有人都坐自己的座位，$P(A) = 1$。
+
+**情形 2：** 1 号坐 $j$ 号座位（$2 \le j \le 99$）→ 乘客 $2, \dots, j-1$ 坐自己座位；乘客 $j$ 被挤掉，从剩余 $101 - j$ 个座位 $\{1, j+1, \dots, 100\}$ 中**等概率**随机选。
+
+此时问题归约为经典"飞机座位问题"的 $m = 101 - j$ 人版本（首位乘客在所有 $m$ 个座位上均匀选择）。由经典结论：最后一位坐自己座位的概率恒为 $\dfrac{1}{2}$。
+
+**情形 3：** 1 号坐 100 号座位 → $P(A) = 0$。
+
+**合并计算：**
+
+$$P(A) = \dfrac{1}{2} \cdot 1 + \sum_{j=2}^{99} \dfrac{1}{198} \cdot \dfrac{1}{2} + \dfrac{1}{198} \cdot 0$$
+
+$$= \dfrac{1}{2} + 98 \cdot \dfrac{1}{198} \cdot \dfrac{1}{2} = \dfrac{1}{2} + \dfrac{49}{198} = \dfrac{99}{198} + \dfrac{49}{198} = \dfrac{148}{198} = \boxed{\dfrac{74}{99}}.$$
+
+**验证**（$n = 3$）：公式给出 $\frac{1}{2} + \frac{1}{4} \cdot \frac{1}{2} = \frac{5}{8}$，与直接枚举一致。✓
+      </script></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">deepseek<span class="api-id">deepseek-v4-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>187.2s</strong></span>
+        <span>completion <strong>6293 tok</strong></span>
+        <span>reasoning <strong>5781 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+设事件 $A$ 为 1 号乘客坐自己的座位，事件 $B$ 为 1 号乘客随机选择其他座位。
+
+- $P(A) = \dfrac{1}{2}$，此时所有乘客坐自己的座位，100 号必然坐对。
+- $P(B) = \dfrac{1}{2}$，1 号从 2~100 号中等概率选座。若选到座位 $k$（$2 \le k \le 100$）：
+  - 若 $k = 100$，则 100 号坐对概率为 0。
+  - 若 $2 \le k \le 99$，则归约为规模 $m = 100 - k + 1$ 的经典飞机座位问题（首位随机选座），最后一人坐对的概率恒为 $\dfrac{1}{2}$。
+
+因此，对 $n = 100$，总概率：
+
+$$P = \frac{1}{2} \times 1 + \frac{1}{2} \times \left( \sum_{k=2}^{99} \frac{1}{99} \times \frac{1}{2} + \frac{1}{99} \times 0 \right) = \frac{1}{2} + \frac{1}{2} \cdot \frac{98}{99} \cdot \frac{1}{2} = \frac{1}{2} + \frac{49}{198}.$$
+
+化为同分母：$\dfrac{1}{2} = \dfrac{99}{198}$，求和得 $\dfrac{148}{198} = \dfrac{74}{99}$。
+
+**答案：** $\dfrac{74}{99}$
+      </script></div>
+    </div>
+
+    <!-- mimo -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">MiMo<span class="api-id">mimo-v2.5-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>~240s</strong></span>
+        <span>turns <strong>1</strong> (单轮推理)</span>
+        <span class="consistency">2/3 次正确 (1 次错误)</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**答案：$\dfrac{74}{99}$**
+
+2 次运行正确归约为经典飞机座位问题并给出 74/99。1 次运行错误地给出 1/2，未能正确处理 1 号乘客概率分布的非均匀性。
+      </script></div>
+    </div>
+
+    <!-- panshi100 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
+        <span class="badge bad">✗ 0 / 10</span>
+      </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
+        <span class="badge bad">✗ 0 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span class="consistency empty">空输出</span>
+      </div>
+      <div class="empty-output">
+        <strong>无有效输出</strong>
+        模型在多次尝试中均未能在 token 预算内给出最终答案。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <p>
+    Benchmark 01 · 数学推理 · 五模型对比报告<br>
+     数据来源：<code>opus-answer/</code> · <code>deepseek-answer/</code> · <code>mimo-answer/</code> · <code>kimi-answer/</code> · <code>panshi100-answer/</code>
+    评分依据：<code>solutions/math/solutions.md</code><br>
+    每模型每题独立采样 3 次（除磐石100 因频繁空输出未补足 3 次），正文展示 run1，标注 3 次答案一致性。
+  </p>
+</footer>
+
+<script>
+// Render markdown blocks → HTML, then trigger MathJax typesetting
+document.querySelectorAll('.markdown-content').forEach(div => {
+  const script = div.querySelector('script[type="text/markdown"]');
+  if (script) {
+    const md = script.textContent.trim();
+    div.innerHTML = marked.parse(md);
+  }
+});
+// Trigger MathJax once markdown is in place
+if (window.MathJax && window.MathJax.typesetPromise) {
+  window.MathJax.typesetPromise();
+} else {
+  // MathJax not loaded yet; wait for it
+  document.getElementById('MathJax-script').addEventListener('load', () => {
+    window.MathJax.typesetPromise();
+  });
+}
+</script>
+
+</body>
+</html>

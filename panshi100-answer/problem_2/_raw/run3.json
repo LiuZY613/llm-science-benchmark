@@ -1,0 +1,15 @@
+{
+  "attempts_log": [
+    {
+      "attempt": 1,
+      "suffix": "",
+      "elapsed": 0.5517010688781738,
+      "content_len": 0,
+      "reasoning_len": 0,
+      "meta": {
+        "http_status": 502,
+        "error": ""
+      }
+    }
+  ]
+}

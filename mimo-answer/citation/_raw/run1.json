@@ -1,0 +1,57 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "api_error_status": null,
+  "duration_ms": 847201,
+  "duration_api_ms": 1103099,
+  "num_turns": 112,
+  "result": "The audit is complete. I found **7 issues** across 22 bibliography entries, including **3 likely fabricated references**, **2 with wrong bibliographic details**, and **1 with the wrong journal entirely**. The findings are in `findings.md`.\n\nKey findings:\n\n- **Critical (likely fabricated):** `Tanaka2023`, `Verstraete2022`, `Boyd2024` — none of these papers could be found via DOI lookup, Crossref, or Google Scholar. The DOI in `Tanaka2023` points to a completely unrelated paper.\n- **High severity:** `Reynolds2019` — claims publication in *Computer Physics Communications* 241, but the actual venue is *Lecture Notes in Computer Science* 11938 (Springer).\n- **Medium severity:** `Metropolis1953` (year says 1955, should be 1953), `Frowis2010` (volume says 82, should be 81).",
+  "stop_reason": "end_turn",
+  "session_id": "f9d2143a-db9b-4b09-be4e-de16911c4d99",
+  "total_cost_usd": 4.259903999999999,
+  "usage": {
+    "input_tokens": 104009,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 3425280,
+    "output_tokens": 28498,
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "mimo-v2.5-pro": {
+      "inputTokens": 104009,
+      "outputTokens": 28498,
+      "cacheReadInputTokens": 3425280,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 2.9451349999999996,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    },
+    "mimo-v2.5": {
+      "inputTokens": 80833,
+      "outputTokens": 36204,
+      "cacheReadInputTokens": 11008,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.3147689999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "uuid": "b924a594-df0b-4523-a323-a0a65746c7ab"
+}

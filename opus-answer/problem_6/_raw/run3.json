@@ -1,0 +1,69 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "api_error_status": null,
+  "duration_ms": 41392,
+  "duration_api_ms": 42857,
+  "num_turns": 1,
+  "result": "# 解答\n\n设事件 $A$：100 号乘客最终坐到 100 号座位。\n\n## 分情况讨论\n\n**情况 1**（概率 $\\tfrac12$）：1 号乘客坐自己的座位。  \n此后每位乘客都能坐到自己座位 $\\Rightarrow P(A\\mid\\text{情况1}) = 1$。\n\n**情况 2**（概率 $\\tfrac12$）：1 号乘客在座位 $\\{2,\\dots,100\\}$ 中等概率选一个（共 99 个）。设其选中座位 $j$。\n\n- **若 $j = 100$**（概率 $\\tfrac{1}{99}$）：100 号座位被占，$P(A) = 0$。\n\n- **若 $j \\in \\{2,\\dots,99\\}$**（概率 $\\tfrac{98}{99}$）：乘客 $2,\\dots,j-1$ 全部坐自己座位；乘客 $j$ 在剩余座位 $\\{1,\\, j+1,\\dots,100\\}$ 中等概率选取。此时该集合**关于座位 1 和座位 100 对称**——后续每位\"被挤\"的乘客也都在含 1 与 100 的集合中等概率选。由对称性，链最终终止于座位 1 与终止于座位 100 的概率相等，故\n$$P(A\\mid j\\in\\{2,\\dots,99\\}) = \\tfrac12.$$\n\n合并情况 2：\n$$P(A\\mid \\text{情况2}) = \\frac{98}{99}\\cdot\\frac12 + \\frac{1}{99}\\cdot 0 = \\frac{49}{99}.$$\n\n## 总概率\n\n$$\nP(A) = \\frac12\\cdot 1 + \\frac12 \\cdot \\frac{49}{99} = \\frac{99}{198} + \\frac{49}{198} = \\frac{148}{198} = \\boxed{\\dfrac{74}{99}}.\n$$",
+  "stop_reason": "end_turn",
+  "session_id": "82422e11-add7-4fde-882d-4b72258cc12a",
+  "total_cost_usd": 0.13884275,
+  "usage": {
+    "input_tokens": 5,
+    "cache_creation_input_tokens": 7527,
+    "cache_read_input_tokens": 19826,
+    "output_tokens": 3246,
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 7527,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [
+      {
+        "input_tokens": 5,
+        "output_tokens": 3246,
+        "cache_read_input_tokens": 19826,
+        "cache_creation_input_tokens": 7527,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 7527
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 636,
+      "outputTokens": 15,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.0007109999999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    },
+    "claude-opus-4-7": {
+      "inputTokens": 5,
+      "outputTokens": 3246,
+      "cacheReadInputTokens": 19826,
+      "cacheCreationInputTokens": 7527,
+      "webSearchRequests": 0,
+      "costUSD": 0.13813175,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "uuid": "c37e8c07-b656-437a-adce-40c081f8079c"
+}

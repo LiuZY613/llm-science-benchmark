@@ -1,0 +1,2 @@
+C:\Users\30423\AppData\Local\Temp\bench-codedebug\panshi100\run1\buggy_project\main.py:20: ComplexWarning: Casting complex values to real discards the imaginary part
+  psi[:] = np.exp(-(x - x0)**2 / (4.0 * sigma**2)) * np.exp(1j * p0 * x)

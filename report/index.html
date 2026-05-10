@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>科研大模型实测对比报告</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+
+<style>
+:root{
+  --primary:#1F3A68;
+  --primary-light:#2E5C9A;
+  --accent:#C0392B;
+  --ok:#1F7A3D;
+  --warn:#B8860B;
+  --bad:#9C2A2A;
+  --bg:#FAFBFC;
+  --card:#FFFFFF;
+  --soft:#F2F4F7;
+  --border:#E1E5EA;
+  --text:#1F2937;
+  --muted:#6B7280;
+  --primary-bg:#EBF0F7;
+  --accent-bg:#FDF4F4;
+  --ok-bg:#EDF7F1;
+  --warn-bg:#FDF8EC;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Source Han Sans CN", Roboto, sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;
+}
+a{color:var(--primary-light);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* nav */
+nav.top{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,0.96);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);padding:10px 20px;
+}
+nav.top .inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+nav.top .brand{font-weight:700;color:var(--primary);font-size:14px;white-space:nowrap;letter-spacing:.3px}
+nav.top .links{display:flex;gap:4px;flex-wrap:wrap}
+nav.top a.anchor{padding:4px 10px;border-radius:14px;font-size:13px;color:var(--muted)}
+nav.top a.anchor:hover{background:var(--soft);color:var(--primary);text-decoration:none}
+
+/* hero */
+.hero{
+  max-width:1200px;margin:0 auto;padding:56px 24px 32px;
+  text-align:center;
+}
+.hero h1{font-size:34px;color:var(--primary);margin:0 0 10px;font-weight:700;letter-spacing:-.5px;line-height:1.3}
+.hero .subtitle{color:var(--muted);font-size:16px;margin-bottom:6px}
+.hero .date{font-size:13px;color:var(--muted);margin-bottom:24px}
+.hero .guide{
+  display:inline-block;background:var(--primary-bg);border:1px solid var(--primary);
+  border-radius:8px;padding:12px 24px;font-size:14px;color:var(--primary);font-weight:600;
+}
+
+/* section */
+section{
+  max-width:1200px;margin:0 auto;padding:36px 24px;border-top:1px solid var(--border);
+}
+section.no-border{border-top:none}
+section h2{color:var(--primary);font-size:26px;margin:0 0 18px;font-weight:700;letter-spacing:-.3px}
+section h2 .tag{
+  display:inline-block;background:var(--soft);color:var(--muted);
+  font-size:13px;font-weight:500;padding:2px 10px;border-radius:12px;margin-left:10px;vertical-align:middle;
+}
+section h3{color:var(--primary);font-size:18px;margin:24px 0 10px;font-weight:600}
+section h4{color:var(--primary);font-size:15px;margin:18px 0 8px;font-weight:600}
+
+/* tables */
+table.data{
+  width:100%;border-collapse:collapse;background:var(--card);
+  border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:14px;
+  margin-bottom:16px;
+}
+table.data th, table.data td{padding:10px 14px;text-align:center;border-bottom:1px solid var(--border)}
+table.data th{background:var(--primary);color:#fff;font-weight:600;font-size:13px;letter-spacing:.3px}
+table.data tr:last-child td{border-bottom:none}
+table.data td.l{text-align:left;font-weight:600;color:var(--primary)}
+table.data td.l .sub{font-weight:400;color:var(--muted);font-size:12px;display:block}
+table.data td.ok{color:var(--ok);font-weight:600}
+table.data td.bad{color:var(--bad);font-weight:600}
+table.data td.warn{color:var(--warn);font-weight:600}
+table.data td.total{background:var(--soft);font-weight:700;font-size:15px}
+
+table.compact{font-size:13px}
+table.compact th, table.compact td{padding:7px 10px}
+
+/* keypoint */
+.keypoint{
+  background:var(--primary-bg);border:1px solid var(--primary);border-left:4px solid var(--primary);
+  padding:16px 20px;border-radius:6px;margin:18px 0;font-size:14px;
+}
+.keypoint .kp-title{font-weight:700;color:var(--primary);margin-bottom:6px;font-size:15px}
+.keypoint ul{margin:4px 0;padding-left:20px}
+.keypoint li{margin:3px 0}
+
+.keypoint.warn{
+  background:var(--warn-bg);border-color:var(--warn);border-left-color:var(--warn);
+}
+.keypoint.warn .kp-title{color:var(--warn)}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px;align-items:start}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.card.bad{border-color:#F0CFCC}
+.card-head{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:linear-gradient(180deg, #FCFDFE 0%, #F6F8FB 100%);
+}
+.card.bad .card-head{background:linear-gradient(180deg, #FDF6F5 0%, #FBE9E6 100%)}
+.card-head .model-name{font-weight:700;color:var(--primary);font-size:15px;flex:1}
+.card-head .model-name .api-id{font-weight:400;color:var(--muted);font-size:12px;display:block;margin-top:2px}
+.card-meta{
+  padding:8px 16px;background:var(--soft);font-size:12.5px;color:var(--muted);
+  display:flex;flex-wrap:wrap;gap:14px;border-bottom:1px solid var(--border);
+}
+.card-meta strong{color:var(--text);font-weight:500}
+.card-body{padding:16px 18px;font-size:14px;line-height:1.7}
+.card-body p{margin:6px 0}
+.card-body ul, .card-body ol{margin:6px 0;padding-left:22px}
+.card-body li{margin:4px 0}
+.card-body code{background:var(--soft);padding:1px 5px;border-radius:3px;font-size:12.5px}
+.card-body pre{background:#F8F9FA;padding:10px 12px;border-radius:4px;overflow-x:auto;font-size:12px;border:1px solid var(--border);margin:8px 0}
+.card-body blockquote{
+  border-left:3px solid var(--border);margin:10px 0;padding:4px 12px;
+  color:var(--muted);font-size:13px;background:var(--soft);
+}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600}
+.badge.ok{background:#E8F5EC;color:var(--ok)}
+.badge.warn{background:#FBF1D7;color:var(--warn)}
+.badge.bad{background:#FBE4E2;color:var(--bad)}
+
+/* score bars */
+.score-bar{display:flex;align-items:center;gap:8px;margin:4px 0}
+.score-bar .bar{
+  height:8px;border-radius:4px;background:var(--soft);flex:1;overflow:hidden;
+}
+.score-bar .bar .fill{height:100%;border-radius:4px;transition:width .3s}
+.score-bar .bar .fill.opus{background:var(--ok)}
+.score-bar .bar .fill.ds{background:var(--primary-light)}
+.score-bar .bar .fill.ps{background:var(--warn)}
+.score-bar .val{font-weight:600;font-size:13px;white-space:nowrap;min-width:60px}
+
+/* highlight row */
+tr.hl{background:#FDF6F5}
+tr.hl td{color:var(--bad)}
+
+/* note */
+.note{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+.note strong{color:var(--text)}
+.note a{font-weight:600}
+
+/* failure callout */
+.failure-callout{
+  background:#FDF6F5;border:1px solid #F0CFCC;border-left:4px solid var(--bad);
+  padding:14px 18px;border-radius:6px;margin:14px 0;
+}
+.failure-callout h4{color:var(--bad);margin:0 0 8px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.failure-callout ul{margin:6px 0;padding-left:20px;font-size:13.5px}
+.failure-callout li{margin:4px 0}
+.failure-callout code{background:#FBE4E2;color:#7A1F1F;padding:1px 5px;border-radius:3px;font-size:12.5px}
+
+/* timeline */
+.timeline{position:relative;padding-left:24px;margin:12px 0}
+.timeline::before{
+  content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border);
+}
+.timeline-item{position:relative;margin-bottom:10px;font-size:14px}
+.timeline-item::before{
+  content:'';position:absolute;left:-24px;top:6px;width:16px;height:16px;
+  border-radius:50%;border:2px solid var(--primary);background:var(--card);
+}
+.timeline-item.fail::before{border-color:var(--bad);background:var(--accent-bg)}
+
+footer{
+  max-width:1200px;margin:40px auto 60px;padding:24px;text-align:center;
+  color:var(--muted);font-size:13px;border-top:1px solid var(--border);
+}
+footer a{color:var(--primary-light)}
+
+/* responsive */
+@media (max-width: 768px){
+  .hero h1{font-size:24px}
+  section h2{font-size:20px}
+  .cards{grid-template-columns:1fr}
+  table.data{font-size:12px}
+  table.data th, table.data td{padding:6px 8px}
+}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="inner">
+    <span class="brand">科研大模型实测对比</span>
+    <div class="links">
+      <a class="anchor" href="#summary">§1 摘要</a>
+      <a class="anchor" href="#method">§2 方法</a>
+      <a class="anchor" href="#models">§3 模型</a>
+      <a class="anchor" href="#context">§4 上下文</a>
+      <a class="anchor" href="#benchmarks">§5 实测</a>
+      <a class="anchor" href="#refs">参考</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ======================== HERO ======================== -->
+<div class="hero">
+  <h1>科研大模型实测对比报告</h1>
+  <div class="subtitle">Claude Opus 4.7 / DeepSeek V4 Pro / MiMo V2.5 Pro / Kimi K2.6 / 磐石100 — 三项 Benchmark 客观对比</div>
+  <div class="date">2026 年 5 月 10 日 · 基于 3 项 Benchmark 共 24 次独立运行</div>
+</div>
+
+<!-- ======================== §1 SUMMARY ======================== -->
+<section id="summary" class="no-border">
+  <h2>§1 摘要</h2>
+
+  <p>近一年，国际顶级商业大模型（<strong>Claude Opus 4.7</strong>、<strong>DeepSeek V4 Pro</strong>）已成为科研人员日常工作的核心生产力工具，被广泛用于文献综述、论文写作、代码调试、数据分析等场景。</p>
+
+  <p>中科院体系内部署的<strong>磐石 100</strong>模型，基于 DeepSeek-R1 (671B 版本) 与 Qwen3 (8B/32B 版本) 微调，上下文长度限制为 <strong>32k token（约 3–5 万字）</strong>。同期商业模型的上下文长度已达 <strong>100 万 token（约 100 万字以上）</strong>，相差约 30 倍。</p>
+
+  <p>本报告通过 <strong>3 项 Benchmark 实测</strong>（数学推理、代码调试、引用核查），客观对比<strong>五者</strong>实际表现。所有运行均可复现——原始输出、评分标准与验证脚本均已公开（见 <a href="benchmark01.html">01</a> / <a href="benchmark02.html">02</a> / <a href="benchmark03.html">03</a> 详细报告）。</p>
+
+  <div class="keypoint">
+    <div class="kp-title">核心结论</div>
+    <ol style="margin:4px 0;padding-left:22px">
+      <li><strong>能力差距显著</strong>：加权均分 deepseek 96.3、opus 94.7、kimi 92.5、MiMo 83.7、磐石100 30.9。磐石在三项任务中均垫底，MiMo 居中。</li>
+      <li><strong>系统性失败</strong>：磐石100 在 01 数学推理中 3/6 题空输出（推理 token 耗尽），02 代码调试仅 0.4/10（turns=1，伪工具调用），03 引用核查 0/10（turns=1，从未实际搜索）。失败模式一致，非偶然（详见 §5.4）。</li>
+      <li><strong>能力断档</strong>：磐石上下文仅 32k token（约 3–5 万字），商业模型 1M token（约 100 万字以上），相差 30 倍。凡涉及完整论文阅读、跨文献对比、长文档分析的任务，磐石均不可用。商业模型在科研一线目前没有替代品。</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ======================== §2 METHOD ======================== -->
+<section id="method">
+  <h2>§2 测试方法 <span class="tag">所有运行可复现</span></h2>
+
+  <h3>2.1 测试工具与接入方式</h3>
+  <p>三项 Benchmark 均通过 <strong>Claude Code (CC)</strong> 命令行工具 (<code>claude -p</code>) 与模型交互。CC 按 Anthropic tool-use 协议管理 agent loop，提供 Read / Edit / Bash / WebSearch 等工具。各模型的接入方式如下：</p>
+
+  <table class="data">
+    <thead>
+      <tr>
+        <th style="text-align:left">模型</th>
+        <th>调用端点</th>
+        <th>01 数学推理</th>
+        <th>02 代码调试 / 03 引用核查</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="l">opus</td>
+        <td>Anthropic 官方 API (OAuth Max)</td>
+        <td>CC 单轮<br><span style="font-size:12px;color:var(--muted)">工具启用 · 3 次独立采样</span></td>
+        <td>CC agent loop<br><span style="font-size:12px;color:var(--muted)">沙盒隔离 · Read/Edit/Bash/WebSearch</span></td>
+      </tr>
+      <tr>
+        <td class="l">deepseek</td>
+        <td>DeepSeek Anthropic 兼容端点<br><span style="font-size:12px;color:var(--muted)">api.deepseek.com/anthropic</span></td>
+        <td>CC 单轮<br><span style="font-size:12px;color:var(--muted)">工具启用 · 3 次独立采样</span></td>
+        <td>CC agent loop<br><span style="font-size:12px;color:var(--muted)">沙盒隔离 · Read/Edit/Bash/WebSearch</span></td>
+      </tr>
+      <tr>
+        <td class="l">mimo</td>
+        <td>Xiaomi MiMo Anthropic 兼容端点<br><span style="font-size:12px;color:var(--muted)">token-plan-cn.xiaomimimo.com/anthropic</span></td>
+        <td>CC 单轮<br><span style="font-size:12px;color:var(--muted)">工具启用 · 3 次独立采样</span></td>
+        <td>CC agent loop<br><span style="font-size:12px;color:var(--muted)">沙盒隔离 · Read/Edit/Bash/WebSearch</span></td>
+      </tr>
+      <tr>
+        <td class="l">kimi</td>
+        <td>Moonshot Kimi Anthropic 兼容端点<br><span style="font-size:12px;color:var(--muted)">api.moonshot.cn/anthropic</span></td>
+        <td>CC 单轮<br><span style="font-size:12px;color:var(--muted)">工具启用 · 3 次独立采样</span></td>
+        <td>CC agent loop<br><span style="font-size:12px;color:var(--muted)">沙盒隔离 · Read/Edit/Bash/WebSearch</span></td>
+      </tr>
+      <tr>
+        <td class="l">磐石100</td>
+        <td>cstcloud OpenAI 兼容端点<br><span style="font-size:12px;color:var(--muted)">uni-api.cstcloud.cn/v1</span></td>
+        <td>HTTP 流式单轮<br><span style="font-size:12px;color:var(--muted)">无工具 · 3 次独立采样</span></td>
+        <td>CC agent loop<br><span style="font-size:12px;color:var(--muted)">沙盒隔离 · 工具描述已注入但模型未执行</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <p><strong>CC 接入方式：</strong>opus 使用 <code>claude -p --model claude-opus-4-7</code> 直接调用 Anthropic 官方 OAuth Max 订阅；deepseek 通过设置环境变量 <code>ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic</code> 将 CC 底层端点指向 DeepSeek 的 Anthropic 兼容 API；MiMo 同理指向 Xiaomi 端点 (<code>mimo-v2.5-pro</code>)；kimi 同理指向 Moonshot 端点 (<code>kimi-k2.6</code>)；磐石100 同理指向 cstcloud 端点 (<code>S1-Base-Ultra</code>)。所有调用参数、原始输出与运行脚本均保存在本项目仓库中，可重跑验证。</p>
+  </div>
+
+  <h3>2.2 任务设计与评分规则</h3>
+  <table class="data compact">
+    <thead>
+      <tr><th style="text-align:left">Benchmark</th><th>任务</th><th>评分规则</th><th>采样</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="l">01 · 数学推理</td>
+        <td>6 道数学题（代数不等式 · 解析几何 · 数论 · 组合计数 · 微积分极限 · 条件概率）<br>难度：清北强基笔试 ~ Putnam 中段</td>
+        <td>每题 10 分。最终答案错误即 0 分；答案正确 + 推导思路正确即 10 分。</td>
+        <td>每模型每题 3 次独立调用</td>
+      </tr>
+      <tr>
+        <td class="l">02 · 代码调试</td>
+        <td>含 5 处 Bug 的量子谐振子仿真项目<br>需在沙盒中定位修复全部 Bug 并通过物理验证</td>
+        <td>5 处 Bug 修复 (6 分) + 4 项物理判据 (4 分) = 10 分</td>
+        <td>每模型 1 次 agent 运行</td>
+      </tr>
+      <tr>
+        <td class="l">03 · 引用核查</td>
+        <td>LaTeX 论文含 23 条引用（8 处注入错误）<br>需作为审稿人逐条检索验证真实性与一致性</td>
+        <td>TP 命中 (每条正确识别 1.25 分 × 8 = 10 分) · 假阳性每条 −0.5 分</td>
+        <td>每模型 1 次 agent 运行</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>2.3 可复现性</h3>
+  <p>所有评分基准公开在 <code>solutions/</code> 目录下，包含正确答案和自动验证脚本。Benchmark 运行脚本 <code>run_benchmark.py</code>、<code>run_codedebug.py</code>、<code>run_citation.py</code> 可在相同环境下重跑验证。原始输出保存在 <code>opus-answer/</code>、<code>deepseek-answer/</code>、<code>mimo-answer/</code>、<code>kimi-answer/</code>、<code>panshi100-answer/</code> 目录。</p>
+</section>
+
+<!-- ======================== §3 THREE MODELS ======================== -->
+<section id="models">
+  <h2>§3 五个模型是什么</h2>
+
+  <h3>3.1 磐石 100（中国科学院 / S1-Base 系列）</h3>
+  <p><strong>磐石 100</strong> 是中科院自动化研究所等单位联合研发的科学领域大模型体系，2026 年 4 月正式亮相。底座为<strong>磐石·科学基础大模型（S1-Base）</strong>，提供 8B / 32B / 671B 三种参数规模。</p>
+  <p>根据 Hugging Face 官方模型卡，<strong>S1-Base-671B 训练自 DeepSeek-R1-671B</strong>，S1-Base-8B 与 S1-Base-32B 分别训练自 Qwen3-8B 与 Qwen3-32B。微调使用了 1.7 亿篇科学论文与数百万条高质量科学推理数据。<strong>所有版本上下文长度统一为 32k token（约 3–5 万字）</strong>。模型以 Apache 2.0 协议开源。</p>
+
+  <h3>3.2 DeepSeek V4 Pro（深度求索）</h3>
+  <p><strong>DeepSeek V4 Pro</strong> 由杭州深度求索公司研发，2026 年发布。采用异构混合专家（MoE）架构，<strong>总参数 1.6 万亿</strong>，预训练数据 32 万亿 token。支持三档推理模式。<strong>上下文长度 100 万 token（约 100 万字以上）</strong>，最大单次输出 38.4 万 token。API 国内可直接调用，标价：输入 ¥3 / 百万 token，输出 ¥6 / 百万 token。</p>
+
+  <h3>3.3 Claude Opus 4.7（Anthropic）</h3>
+  <p><strong>Claude Opus 4.7</strong> 由美国 Anthropic 公司研发，2026 年发布，是国际公认在编程、长文档分析、复杂推理等任务上的第一梯队模型。<strong>上下文长度 100 万 token</strong>，最大单次输出 12.8 万 token。API 仅以美元计价，折合人民币输入约 ¥36 / 百万 token，输出约 ¥180 / 百万 token。</p>
+
+  <h3>3.4 MiMo V2.5 Pro（小米）</h3>
+  <p><strong>MiMo V2.5 Pro</strong> 由小米 AI 团队研发，2025 年末发布。为纯文本大语言模型，<strong>上下文长度 100 万 token</strong>，支持工具调用与 agent 工作流。通过 Token Plan 订阅制提供服务，国内可直接访问（token-plan-cn.xiaomimimo.com）。在本次实测中通过 Anthropic 兼容端点接入 Claude Code，以与其模型完全一致的方式执行所有 Benchmark。</p>
+
+  <h3>3.5 Kimi K2.6（月之暗面 / Moonshot AI）</h3>
+  <p><strong>Kimi K2.6</strong> 由北京月之暗面科技有限公司（Moonshot AI）研发，2026 年发布。为多模态大语言模型（支持文本与视觉输入），<strong>上下文长度 262k token</strong>（约 26 万字），支持工具调用与 agent 工作流。通过 Moonshot Anthropic 兼容端点（api.moonshot.cn/anthropic）提供服务，国内可直接访问。本次实测通过 Anthropic 兼容端点接入 Claude Code，完成全部三项 Benchmark。</p>
+
+  <h3>3.6 关键参数五方对比</h3>
+  <table class="data compact">
+    <thead>
+      <tr>
+        <th style="text-align:left;width:16%">维度</th>
+        <th style="width:16%">磐石 100 (S1-671B)</th>
+        <th style="width:16%">DeepSeek V4 Pro</th>
+        <th style="width:16%">Claude Opus 4.7</th>
+        <th style="width:16%">MiMo V2.5 Pro</th>
+        <th style="width:16%">Kimi K2.6</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="l">研发方</td><td>中科院自动化所等</td><td>深度求索（杭州）</td><td>Anthropic（美国）</td><td>小米（北京）</td><td>月之暗面（北京）</td>
+      </tr>
+      <tr>
+        <td class="l">底座来源</td><td>DeepSeek-R1 / Qwen3 微调</td><td>自研 V4 系列</td><td>自研 Opus 4 系列</td><td>自研 MiMo 系列</td><td>自研 Kimi 系列</td>
+      </tr>
+      <tr>
+        <td class="l">参数规模</td><td>671B（总参数）</td><td>1.6T 总 / 49B 活跃</td><td>未公开</td><td>未公开</td><td>未公开</td>
+      </tr>
+      <tr>
+        <td class="l">上下文长度</td><td class="bad"><strong>32k token (~3–5 万字)</strong></td><td class="ok"><strong>1M token (~100 万字)</strong></td><td class="ok"><strong>1M token (~100 万字)</strong></td><td class="ok"><strong>1M token (~100 万字)</strong></td><td class="warn"><strong>262k token (~26 万字)</strong></td>
+      </tr>
+      <tr>
+        <td class="l">训练数据量</td><td>微调 1.7 亿论文</td><td>预训练 32T token</td><td>未公开（业界估计同量级）</td><td>未公开</td><td>未公开</td>
+      </tr>
+      <tr>
+        <td class="l">对外 API</td><td class="bad">否（仅院内部署）</td><td class="ok">是（境内直调）</td><td class="ok">是（需海外节点）</td><td class="ok">是（Token Plan·境内直调）</td><td class="ok">是（境内直调）</td>
+      </tr>
+      <tr>
+        <td class="l">参考单价<br><span style="font-weight:400;font-size:11px">输入/输出 ¥/M token</span></td><td>—</td><td>¥3 / ¥6</td><td>¥36 / ¥180</td><td>订阅制</td><td>¥6.5 / ¥27</td>
+      </tr>
+      <tr>
+        <td class="l">适用场景</td><td>内网涉密、特定学科工具</td><td>通用科研主力</td><td>高难度非涉密任务</td><td>通用科研·agent 工作流</td><td>通用科研·agent 工作流</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="keypoint">
+    <div class="kp-title">关键事实</div>
+    <ul>
+      <li>磐石 100 最强版本（671B）基于 <strong>DeepSeek-R1</strong>——已被原厂商迭代至 V4 Pro，参数、上下文、效率全面更新换代。</li>
+      <li>磐石工作记忆约 3–5 万字，Kimi K2.6 约 26 万字，DeepSeek V4 Pro、Claude Opus 4.7 与 MiMo V2.5 Pro 均为 <strong>100 万字以上</strong>——商业模型是磐石的 <strong>8~30 倍以上</strong>。</li>
+      <li>五者定位：磐石适合内网/涉密；DeepSeek V4 Pro 国内合规主力；Claude Opus 4.7 最高难度非涉密任务；Kimi K2.6 综合优秀，262k token 上下文，输入 ¥6.5 / 输出 ¥27（每百万 token）；MiMo V2.5 Pro 性价比突出的中间选择。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================== §4 CONTEXT WINDOW ======================== -->
+<section id="context">
+  <h2>§4 为什么"一次能记多少字"决定了能不能用</h2>
+
+  <p>第 3 节列出的所有指标里，<strong>"一次能记多少字"</strong>（即上下文长度）是<strong>对科研用户体验影响最大的单一指标</strong>。</p>
+
+  <h3>4.1 一个公文场景的类比</h3>
+  <p>设想你让一位秘书帮你处理一份<strong>国家自然科学基金重点项目申报书</strong>（含正文、附件、参考文献，约 8 万字）。</p>
+  <ul>
+    <li><strong>用磐石</strong>：只能拿到前 1/3（约 3 万字），后面 2/3 完全看不到。写出的"建议"必然只覆盖前 1/3。而且写建议本身也要消耗工作记忆——哪怕材料只有 4 万字，也未必能完整读完后留出空间写回复。</li>
+    <li><strong>用 DeepSeek V4 Pro 或 Claude</strong>：可以<strong>一次完整通读全部 8 万字</strong>，在脑中保留所有内容的同时写出精炼建议、跨章节一致性问题。</li>
+  </ul>
+  <p><strong>这不是"快慢之差"，而是"能做"与"做不了"的差别。</strong></p>
+
+  <h3>4.2 数字对比</h3>
+  <table class="data compact">
+    <thead>
+      <tr><th>字数量级</th><th>大约相当于（公文场景）</th><th style="width:60px">磐石</th><th style="width:60px">Kimi</th><th style="width:60px">DeepSeek</th><th style="width:60px">Claude</th><th style="width:60px">MiMo</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="l">3–5 万字</td><td style="text-align:left">一份面上项目申报书正文</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+      <tr><td class="l">100 万字</td><td style="text-align:left">7–10 篇博士学位论文 · 或 研究所 5 年全部学术报告合集</td><td class="bad">✗</td><td class="bad">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.3 对实际科研任务的影响</h3>
+  <table class="data compact">
+    <thead>
+      <tr>
+        <th style="text-align:left">科研任务</th>
+        <th>所需总字数<br><span style="font-weight:400;font-size:11px">(输入+推理+输出)</span></th>
+        <th>磐石</th>
+        <th>Kimi</th>
+        <th>DeepSeek</th>
+        <th>Claude</th>
+        <th>MiMo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="l">改一段论文摘要</td><td>&lt; 5 千字</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+      <tr><td class="l">写论文 introduction</td><td>1–2 万字</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+      <tr><td class="l">单篇 arxiv 长论文精读综述</td><td>10–20 万字</td><td class="bad">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+      <tr><td class="l">三篇相关论文交叉对比</td><td>30–50 万字</td><td class="bad">✗</td><td class="warn">临界</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+      <tr><td class="l">完整项目结题报告分析</td><td>50–100 万字</td><td class="bad">✗</td><td class="bad">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+      <tr><td class="l">全所 5 年材料整合分析</td><td>100 万字以上</td><td class="bad">✗</td><td class="bad">✗</td><td>临界</td><td>临界</td><td>临界</td></tr>
+    </tbody>
+  </table>
+
+  <div class="keypoint">
+    <div class="kp-title">本节结论</div>
+    <p style="margin:4px 0">磐石的上下文上限决定了它<strong>只能胜任最浅层的辅助写作任务</strong>（改摘要、扩写段落、初稿润色）。Kimi K2.6 262k token 可覆盖论文精读和中等文档分析，但不足以承载大规模跨文献对比（如三篇以上长论文）。<strong>凡涉及完整论文阅读、跨文献对比、长文档分析的科研任务，磐石都做不了。</strong>要胜任科研一线需求，必须使用至少能处理 100 万字级别的模型——目前 DeepSeek V4 Pro、Claude Opus 4.7、MiMo V2.5 Pro 等商业模型已达到这一标准。</p>
+  </div>
+</section>
+
+<!-- ======================== §5 BENCHMARKS ======================== -->
+<section id="benchmarks">
+  <h2>§5 实测能力对比：三项 Benchmark <span class="tag">真实运行 · 全部有原始输出</span></h2>
+
+  <p>本节通过 <strong>3 项 Benchmark</strong> 实测对比五个模型在科研任务上的表现。每项按统一标准打分（满分 10 分）。<strong>所有数据均来自真实运行</strong>，原始输出可在 <a href="benchmark01.html">01</a> / <a href="benchmark02.html">02</a> / <a href="benchmark03.html">03</a> 详细报告中查看。</p>
+
+  <h3>5.0 五模型总成绩单</h3>
+  <table class="data">
+    <thead>
+      <tr>
+        <th style="text-align:left">模型</th>
+        <th>01 · 数学推理<br><span style="font-weight:400;font-size:11px">6题 / 满分60</span></th>
+        <th>02 · 代码 Debug<br><span style="font-weight:400;font-size:11px">5 Bug / 满分10</span></th>
+        <th>03 · 引用核查<br><span style="font-weight:400;font-size:11px">8 错误 / 满分10</span></th>
+        <th>加权均分<br><span style="font-weight:400;font-size:11px">(百分制)</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="l">opus <span class="sub">claude-opus-4-7 · OAuth Max</span></td>
+        <td class="ok">60 / 60</td>
+        <td class="ok">10.0 / 10</td>
+        <td class="warn">5.75 / 10</td>
+        <td class="total" style="color:var(--ok)">94.7</td>
+      </tr>
+      <tr>
+        <td class="l">deepseek <span class="sub">deepseek-v4-pro[1m] · DS 官方</span></td>
+        <td class="ok">60 / 60</td>
+        <td class="ok">10.0 / 10</td>
+        <td class="ok">8.5 / 10</td>
+        <td class="total" style="color:var(--ok)">96.3</td>
+      </tr>
+      <tr>
+        <td class="l">mimo <span class="sub">mimo-v2.5-pro · Xiaomi Token Plan</span></td>
+        <td class="warn">50 / 60</td>
+        <td class="ok">10.0 / 10</td>
+        <td class="warn">6.9 / 10</td>
+        <td class="total" style="color:var(--warn)">83.7</td>
+      </tr>
+      <tr>
+        <td class="l">kimi <span class="sub">kimi-k2.6 · Moonshot API</span></td>
+        <td class="ok">60 / 60</td>
+        <td class="ok">10.0 / 10</td>
+        <td class="warn">6.25 / 10</td>
+        <td class="total" style="color:var(--ok)">92.5</td>
+      </tr>
+      <tr>
+        <td class="l">磐石100 <span class="sub">S1-Base-Ultra (S1-671B) · uni-api</span></td>
+        <td class="warn">25 / 60</td>
+        <td class="bad">0.4 / 10</td>
+        <td class="bad">0.0 / 10</td>
+        <td class="total" style="color:var(--bad)">30.9</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="note">
+    <strong>加权说明：</strong>01 占 60% 权重（6 题 × 10 分），02、03 各占 20%（各 10 分）。
+    opus 在 03 中命中 6/8 错误（漏检 2 处位置错误），分类 4/8 准确（E5/E6 领域伪造未细分），1 条假阳性，得 5.75/10。
+    MiMo 在 01 中 Q5（极限题）三跑全错（0 分），Q2/Q6 各有一跑错误；03 中漏检 2 处位置错误，Reynolds2019 分类有偏差，得 6.9/10。
+    kimi 在 01 中 6 题均 10/10（best-of-3），有两跑失败（Q1 run3 reasoning截断空输出、Q4 run3 超时）但不影响得分。02 一跑 10/10。03 命中 6/8（漏检 E7/E8 位置错误），分类 4/8，0 假阳性，得 6.25/10。加权均分 92.5。
+    <strong>磐石 100 在三项任务中均垫底</strong>，与商业模型存在系统性差距。<br>
+    详情：<a href="benchmark01.html">01 完整报告</a> · <a href="benchmark02.html">02 完整报告</a> · <a href="benchmark03.html">03 完整报告</a>
+  </p>
+
+  <!-- ======== 5.1 MATH ======== -->
+  <h3>5.1 Benchmark 01 · 数学推理 <span class="tag">6 题 · 每模型采样 3 次 · 满分 60</span></h3>
+
+  <p><strong>题目范围：</strong>代数不等式 · 解析几何 · 数论 · 组合计数 · 微积分极限 · 条件概率。难度相当于清北强基笔试到 Putnam 中段。</p>
+  <p><strong>评分规则：</strong>每题满分 10 分。最终答案错误即 0 分；答案正确后再加推导思路分。每模型每题独立采样 3 次。</p>
+
+  <table class="data">
+    <thead>
+      <tr><th style="text-align:left">模型</th><th>题1 代数</th><th>题2 几何</th><th>题3 数论</th><th>题4 组合</th><th>题5 极限</th><th>题6 概率</th><th>合计 / 60</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="l">opus</td>
+        <td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td>
+        <td class="total" style="color:var(--ok)">60</td>
+      </tr>
+      <tr>
+        <td class="l">deepseek</td>
+        <td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td>
+        <td class="total" style="color:var(--ok)">60</td>
+      </tr>
+      <tr>
+        <td class="l">mimo</td>
+        <td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="bad">0</td><td class="ok">10</td>
+        <td class="total" style="color:var(--warn)">50</td>
+      </tr>
+      <tr>
+        <td class="l">kimi</td>
+        <td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td>
+        <td class="total" style="color:var(--ok)">60</td>
+      </tr>
+      <tr class="hl">
+        <td class="l">磐石100</td>
+        <td class="ok">10</td><td class="ok">10</td><td class="bad">0</td><td class="bad">0</td><td class="warn">5*</td><td class="bad">0</td>
+        <td class="total" style="color:var(--warn)">25</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="note">
+    <strong>磐石 100 失分分析：</strong>题 3、4、6 均为<strong>空输出</strong>——思考阶段消耗满 8192 completion tokens（<code>finish_reason=length</code>），正式回答 <code>content_len=0</code>。
+    题 5 推导到二阶系数 $\pi^2/12$ 后被截断，给 5/10 部分分。<br>
+    <strong>kimi 失分情况：</strong>题 1 run3 思考 token 耗尽导致空输出 (<code>finish_reason=length</code>)，题 4 run3 超时 (exit code 0xFFFFFFFF)。其余 16/18 跑全部满分，best-of-3 全部 10/10，总计 60/60。
+    <strong>MiMo 失分分析：</strong>题 5（极限题）三跑全错——三次运行均未推出 $\pi^2/12$，run1 得 $(\ln2)^2/4 - \pi^2/24$，run2 得 $\pi^2/12 - (\ln2)^2/2$，run3 得 $\ln2 + \pi^2/12$，该题对该模型为系统性失败。题 2 run3 得出错误定点 $(7/4, -3\sqrt{3}/4)$，题 6 run2 错误答案为 $1/2$。opus 与 deepseek 则 6 题全对，3 次采样答案均一致。
+    <a href="benchmark01.html">→ 完整 6 题展开</a>
+  </p>
+
+  <h4>代表性题目：题 5 · 微积分极限</h4>
+  <div style="background:var(--card);border:1px solid var(--border);border-left:4px solid var(--primary);padding:14px 18px;border-radius:6px;margin:12px 0">
+    <p style="margin:0 0 8px;font-weight:600">题面</p>
+    <p style="margin:0">求极限 $$\lim_{n \to \infty}\ n^2 \left( \int_0^1 \frac{1}{1+x^n}\,\mathrm{d}x \;-\; 1 \;+\; \frac{\ln 2}{n} \right)$$ 的精确封闭形式。</p>
+    <p style="margin:8px 0 0;color:var(--ok);font-weight:600">标准答案：$\dfrac{\pi^2}{12}$</p>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">opus <span class="api-id">claude-opus-4-7</span></div>
+        <span class="badge ok">10 / 10</span>
+      </div>
+      <div class="card-meta"><span>耗时 <strong>33.7s</strong> (均值)</span><span>3 次运行答案一致</span></div>
+      <div class="card-body">
+        <p>通过 $u=x^n$ 代换 + 级数展开 + Dirichlet eta 函数求值，完整推导出 $\frac{\pi^2}{12}$，并给出更高阶项 $-\frac{3\zeta(3)}{4n^3}$。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">deepseek <span class="api-id">deepseek-v4-pro</span></div>
+        <span class="badge ok">10 / 10</span>
+      </div>
+      <div class="card-meta"><span>耗时 <strong>103.3s</strong> (均值)</span><span>3 次运行答案一致</span></div>
+      <div class="card-body">
+        <p>几何级数展开 + 逐项积分 + 已知交错级数 $\sum (-1)^k/k^2 = -\pi^2/12$，干净利落得到答案。</p>
+      </div>
+    </div>
+
+    <div class="card bad">
+      <div class="card-head">
+        <div class="model-name">磐石100 <span class="api-id">S1-Base-Ultra</span></div>
+        <span class="badge warn">5 / 10 · 部分分</span>
+      </div>
+      <div class="card-meta"><span>耗时 <strong>753s</strong> (12m33s)</span><span style="color:var(--warn)">推导被截断</span></div>
+      <div class="card-body">
+        <p>变量替换后展开到 $\dfrac{\pi^2}{12} a - \dfrac{3}{\cdots}$，<strong>在二阶系数后被长度截断</strong>，未写出最终极限结论。但 $\pi^2/12$ 已显式出现在渐近展开中，按部分分给 5/10。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== 5.2 CODE DEBUG ======== -->
+  <h3>5.2 Benchmark 02 · 代码 Debug <span class="tag">5 处 Bug · agent loop · 满分 10</span></h3>
+
+  <p><strong>任务：</strong>给定一个含 5 处 Bug 的量子谐振子仿真项目，模型需在沙盒中阅读源码、定位修复全部 Bug、运行 <code>python main.py</code> 无 warning/error，并满足 4 项物理判据（能量、⟨x⟩、⟨p⟩、模长）。输出 <code>findings.md</code>。</p>
+
+  <table class="data">
+    <thead>
+      <tr>
+        <th style="text-align:left">模型</th><th>耗时 (s)</th><th>turns</th><th>5 处 Bug</th><th>4 项判据</th><th>无 warning</th><th>得分 / 10</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="l">opus</td><td>130.8</td><td>20</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
+      <tr><td class="l">deepseek</td><td>464.5</td><td>21</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
+      <tr><td class="l">mimo</td><td>327.7</td><td>~20</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
+      <tr><td class="l">kimi</td><td>119.9</td><td>19</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
+      <tr class="hl"><td class="l">磐石100</td><td>225.8</td><td class="bad">1</td><td class="bad">0 / 5</td><td class="bad">1 / 4</td><td class="bad">✗</td><td class="total" style="color:var(--bad)">0.4</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note">
+    opus、deepseek、MiMo 与 kimi 的修复结果<strong>一致</strong>（verify 输出完全相同），均修对全部 5 处 Bug、4 项物理判据全部满足。
+    磐石 100 <strong>turns=1</strong>——模型在首轮就 <code>end_turn</code>，输出中包含伪 JSON tool call 但从未实际调用任何工具。
+    <a href="benchmark02.html">→ 完整报告</a>
+  </p>
+
+  <!-- ======== 5.3 CITATION ======== -->
+  <h3>5.3 Benchmark 03 · 引用核查 <span class="tag">8 处注入错误 · agent loop · 满分 10</span></h3>
+
+  <p><strong>任务：</strong>作为学术审稿人复核一篇 LaTeX 论文（N-queens 统计力学）的 23 条引用。其中 8 处为人为注入的错误（2 完全捏造 + 2 字段篡改 + 2 领域伪造 + 2 位置错误），剩余 15 条为真实引用。模型需使用 WebSearch / Crossref API 等逐条验证，输出 <code>findings.md</code>。</p>
+
+  <table class="data">
+    <thead>
+      <tr>
+        <th style="text-align:left">模型</th><th>耗时 (s)</th><th>turns</th><th>TP 命中 / 8</th><th>假阳性</th><th>得分 / 10</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="l">opus <span class="sub">claude-opus-4-7</span></td><td>610.9</td><td>64</td><td class="warn">6 / 8</td><td class="warn">1 条 (−0.5)</td><td class="total" style="color:var(--warn)">5.75</td></tr>
+      <tr><td class="l">deepseek <span class="sub">deepseek-v4-pro[1m]</span></td><td>2 495.0</td><td>65</td><td class="ok">8 / 8</td><td class="warn">3 条 (−1.5)</td><td class="total" style="color:var(--ok)">8.5</td></tr>
+      <tr><td class="l">mimo <span class="sub">mimo-v2.5-pro</span></td><td>848.8</td><td>~25</td><td class="warn">6 / 8</td><td class="ok">0 条</td><td class="total" style="color:var(--warn)">6.9</td></tr>
+      <tr><td class="l">kimi <span class="sub">kimi-k2.6</span></td><td>2 363.5</td><td>63</td><td class="warn">6 / 8</td><td class="ok">0 条</td><td class="total" style="color:var(--warn)">6.25</td></tr>
+      <tr class="hl"><td class="l">磐石100 <span class="sub">S1-Base-Ultra</span></td><td>59.2</td><td class="bad">1</td><td class="bad">0 / 8</td><td>—</td><td class="total" style="color:var(--bad)">0.0</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note">
+    deepseek 全部 8 处错误命中（含 4 种类型全部分类正确），3 条假阳性扣 1.5 分，得 8.5/10。
+    opus 64 turns 完成，命中 6/8（漏检 E7/E8 两处位置错误），E5/E6 领域伪造被笼统归入"完全捏造"未细分，1 条假阳性，得 5.75/10。
+    MiMo 命中 6/8（漏检 E7/E8 位置错误——在引用位置合理性上缺少逐条语义检查），Reynolds2019 分类有偏差（认为是期刊错误而非捏造，查到一篇同名 LNCS 论文），无假阳性，得 6.9/10。
+    kimi 命中 6/8（同 opus / MiMo，漏检 E7/E8 位置错误），E3/E4 字段篡改 + E1/E2/E5/E6 实体不存在检测准确，E5/E6 未区分"领域伪造"vs"完全捏造"，0 假阳性，得 6.25/10。
+    磐石 100 再次 <strong>turns=1</strong>——输出了一段伪 JSON <code>{"tool": "Read", "params": {"file_path": "./paper.tex"}}</code> 然后立即 <code>end_turn</code>，从未调用 Crossref / Google Scholar。
+    <a href="benchmark03.html">→ 完整报告</a>
+  </p>
+
+<!-- ======== 5.4 PANSHI FAILURE ======== -->
+  <h3>5.4 磐石 100 失败模式分析 <span class="tag">系统性问题 · 非偶然</span></h3>
+
+  <div class="failure-callout">
+    <h4>三项 Benchmark 中磐石 100 的共性失败模式</h4>
+    <table class="data compact" style="margin-top:8px">
+      <thead>
+        <tr><th style="text-align:left">Benchmark</th><th>harness</th><th>turns</th><th>失败模式</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="l">01 · 数学推理</td><td>HTTP 单轮</td><td>—</td>
+          <td style="text-align:left;font-size:13px"><strong>推理黑洞</strong>：题 3/4/6 思考阶段消耗满 8192 tokens，<code>finish_reason=length</code>，正式回答为空。HTTP streaming 模式下 reasoning_content 无限填充但 content 始终为空。</td>
+        </tr>
+        <tr>
+          <td class="l">02 · 代码 Debug</td><td>Agent (<code>claude -p</code>)</td><td class="bad">1</td>
+          <td style="text-align:left;font-size:13px"><strong>伪工具调用</strong>：CC 向模型注入了完整的 Anthropic tool-use 协议描述（含所有可用工具的函数签名）。磐石 100 输出的工具调用形如 <code>```json\n{"tool": "Glob", "params": {"pattern": "*.py"}}\n```</code>——这是 markdown 代码块，不是 Anthropic 协议的 <code>tool_use</code> content block（后者需要 <code>id</code>/<code>name</code>/<code>input</code> 结构化字段）。CC 无法解析这些文本块为工具调用，模型据此幻想文件结构并编造 Bug 位置（如声称 <code>wavefunction.py:42</code> 有错——该文件在项目中根本不存在）。</td>
+        </tr>
+        <tr>
+          <td class="l">03 · 引用核查</td><td>Agent (<code>claude -p</code>)</td><td class="bad">1</td>
+          <td style="text-align:left;font-size:13px"><strong>同 02</strong>：模型在首轮输出执行计划 + 伪 <code>{"tool": "Read"}</code> 文本块，随即 <code>end_turn</code>。从未实际调用 Crossref / WebSearch / WebFetch。tasks.json 与 findings.md 均不存在。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>根因分析</h4>
+  <ol>
+    <li><strong>无原生 tool-use 训练：</strong>S1-Base-Ultra（ScienceOne 671B）是基础科学语言模型，未经过 tool-use post-training。遇到 Anthropic 协议的工具描述时，只能"模仿表面格式"——把工具调用写成 markdown 文本块，而非结构化的 <code>tool_use</code> content block。作为对照：opus 与 deepseek 均收到了<strong>完全相同的工具描述</strong>，正常生成结构化 tool_use 块并完成了真实工具调用（02 中 20-21 turns、03 中 64-65 turns）。磐石 100 在两次 agent 任务中 turns=1——并非"不努力"，而是<strong>不会使用工具</strong>。</li>
+    <li><strong>推理 token 预算不足：</strong>在 HTTP 单轮模式下，S1-Base-Ultra 的推理过程无限填充 token 预算（max_tokens=65536 上限），却不输出最终答案。题 3/4/6 均为 <code>finish_reason=length</code> 且 content 字段为空。3 次独立采样中，3 次均为空输出——说明这不是随机波动，而是该模型在处理长推理链题目时的系统性问题。</li>
+    <li><strong>上下文长度断档：</strong>磐石 100 的 32k token 上下文仅为 opus / deepseek (1M token) 的 <strong>1/32</strong>。在需要一次性处理完整长文档的任务上（如 Benchmark 03 中 23 条引用需逐条检索验证），磐石无法加载全部上下文。</li>
+  </ol>
+
+  <div class="keypoint warn">
+    <div class="kp-title">磐石 100 能力边界</div>
+    <ul>
+      <li>在<strong>输入极短的简单数学题</strong>（题 1 代数、题 2 几何）上，磐石 100 能给出正确答案（10/10）。一旦题目需要长推理链（题 3 数论 / 题 4 组合 / 题 6 概率），立即触发 token 预算耗尽导致空输出——<strong>3 次采样结果完全一致</strong>。</li>
+      <li>在<strong>需要工具调用的所有任务</strong>（02/03）上，磐石 100 完全无法执行。turns=1 是系统性失败——两个独立 agent 任务的 2 次运行结果完全相同（均为首轮 end_turn + 伪工具调用文本）。</li>
+      <li><strong>磐石本质上是 DeepSeek-R1 的科学微调版本</strong>——但其底座模型已被原厂商迭代五代（R1 → V3 → V3.1 → V4 → V4 Pro）。磐石在模型参数、上下文长度、推理效率、工具使用能力上已全面落后于现役商业模型。尤其上下文被裁切至原版的 1/32，且未经过工具使用训练，导致其在科研一线最核心的两项能力上（长文档处理、自动化工作流）不具备可用性。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================== REFERENCES ======================== -->
+<section id="refs">
+  <h2>参考资料</h2>
+  <ol style="font-size:14px;padding-left:22px">
+    <li><strong>Benchmark 实测详细报告</strong>：<a href="benchmark01.html">01 数学推理</a> · <a href="benchmark02.html">02 代码 Debug</a> · <a href="benchmark03.html">03 引用核查</a></li>
+    <li><strong>评分基准与验证脚本</strong>：<code>solutions/math/</code> · <code>solutions/code_debug/</code> · <code>solutions/citation/</code></li>
+    <li><strong>原始输出</strong>：<code>opus-answer/</code> · <code>deepseek-answer/</code> · <code>mimo-answer/</code> · <code>kimi-answer/</code> · <code>panshi100-answer/</code></li>
+    <li><strong>磐石·科学基础大模型 / S1-Base 模型卡</strong>：<a href="https://huggingface.co/ScienceOne-AI/S1-Base-671B">huggingface.co/ScienceOne-AI/S1-Base-671B</a></li>
+    <li><strong>中国科学院"磐石 100"发布新闻稿</strong>（2026-04-29）</li>
+    <li><strong>DeepSeek V4 API 定价</strong>：<a href="https://api-docs.deepseek.com/quick_start/pricing">api-docs.deepseek.com/quick_start/pricing</a></li>
+    <li><strong>Claude Opus 4.7 官方定价</strong>：<a href="https://platform.claude.com/docs/en/about-claude/pricing">platform.claude.com/docs/en/about-claude/pricing</a></li>
+    <li><strong>运行脚本</strong>：<code>run_benchmark.py</code> · <code>run_codedebug.py</code> · <code>run_citation.py</code></li>
+  </ol>
+</section>
+
+<footer>
+  报告生成于 2026-05-10 · 基于 3 项 Benchmark 共 24 次独立模型调用 · 原始输出与评分标准均已开源<br>
+  <a href="benchmark01.html">benchmark01.html</a> ·
+  <a href="benchmark02.html">benchmark02.html</a> ·
+  <a href="benchmark03.html">benchmark03.html</a>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+\section{建议与决策矩阵}
+\label{sec:recommendations}
+
+\subsection{三条核心建议}
+
+基于前述能力对比与成本测算，本报告向中科院科研经费政策制定方提出以下三条建议，按可执行难度递增排列：
+
+\medskip
+
+\begin{tcolorbox}[colback=primary!8,colframe=primary,boxrule=0.6pt,arc=2pt,
+                  left=10pt,right=10pt,top=8pt,bottom=8pt]
+\sffamily\textbf{建议 1（立即可做）}\\[3pt]
+\normalfont
+在科研经费管理办法的"\textbf{信息化服务费}"或"\textbf{咨询服务费}"类目下，明确将\textbf{ DeepSeek API 调用费用}列为可报销项目。预计全院年度总开支约 \textbf{¥206 万}，相当于 1 个面上项目额度，无政策与合规障碍。
+\end{tcolorbox}
+
+\medskip
+
+\begin{tcolorbox}[colback=primary!8,colframe=primary,boxrule=0.6pt,arc=2pt,
+                  left=10pt,right=10pt,top=8pt,bottom=8pt]
+\sffamily\textbf{建议 2（试点起步）}\\[3pt]
+\normalfont
+由院领导指定 5--10 个研究所作为试点单位，先行开放\textbf{ Claude API 报销}（\textbf{仅限非涉密、公开数据任务}，如开源论文写作辅助、英文文献处理、开源代码 debug 等），观察 6 个月后视效果与合规情况扩大范围。预计试点阶段年度开支约 \textbf{¥300 万}（按 2,000 试点用户计）。
+\end{tcolorbox}
+
+\medskip
+
+\begin{tcolorbox}[colback=primary!8,colframe=primary,boxrule=0.6pt,arc=2pt,
+                  left=10pt,right=10pt,top=8pt,bottom=8pt]
+\sffamily\textbf{建议 3（与磐石互补，并非替代）}\\[3pt]
+\normalfont
+明确\textbf{磐石定位}为内网涉密任务、特定学科工具调度场景；明确\textbf{商业 API 定位}为通用科研主力工具。两者并行不冲突。建议出台\textbf{《科研 AI 工具选用指南》}，按任务性质指引研究人员使用合适的工具。
+\end{tcolorbox}
+
+\subsection{决策矩阵：领导一图看懂}
+
+下图按"任务难度"和"数据涉密性"两个维度，给出每个象限推荐使用的 AI 工具：
+
+\vspace{6pt}
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[font=\small]
+  % 坐标轴
+  \def\W{4.4}
+  \def\H{3.4}
+  % 背景四个象限
+  % 左下：通用 + 不涉密 → DeepSeek
+  \fill[primary!12] (0,0) rectangle (\W,\H);
+  \node[align=center] at (\W/2,\H/2 + 0.6) {\sffamily\bfseries 通用任务\\\sffamily\bfseries（不涉密）};
+  \node[align=center,primary] at (\W/2,\H/2 - 0.5)
+    {\sffamily\bfseries\large DeepSeek V4 Pro\\[2pt]\small 国内合规 · 单次费用低};
+  % 右下：高难度 + 不涉密 → Claude
+  \fill[primary!22] (\W,0) rectangle (2*\W,\H);
+  \node[align=center] at (1.5*\W,\H/2 + 0.6) {\sffamily\bfseries 高难度任务\\\sffamily\bfseries（不涉密）};
+  \node[align=center,primary] at (1.5*\W,\H/2 - 0.5)
+    {\sffamily\bfseries\large Claude Opus 4.7\\[2pt]\small 性能第一梯队 · 海外合规节点};
+  % 左上：通用 + 涉密 → 磐石
+  \fill[accent!10] (0,\H) rectangle (\W,2*\H);
+  \node[align=center] at (\W/2,1.5*\H + 0.6) {\sffamily\bfseries 通用任务\\\sffamily\bfseries（涉密）};
+  \node[align=center,accent] at (\W/2,1.5*\H - 0.5)
+    {\sffamily\bfseries\large 磐石 100\\[2pt]\small 内网部署 · 数据不出院};
+  % 右上：高难度 + 涉密 → 磐石（受限）
+  \fill[accent!10] (\W,\H) rectangle (2*\W,2*\H);
+  \node[align=center] at (1.5*\W,1.5*\H + 0.6) {\sffamily\bfseries 高难度任务\\\sffamily\bfseries（涉密）};
+  \node[align=center,accent] at (1.5*\W,1.5*\H - 0.5)
+    {\sffamily\bfseries\large 磐石 100（受限）\\[2pt]\small 上下文有限 · 仅作浅层辅助};
+
+  % 边框
+  \draw[thick] (0,0) rectangle (2*\W,2*\H);
+  \draw[thick] (\W,0) -- (\W,2*\H);
+  \draw[thick] (0,\H) -- (2*\W,\H);
+
+  % 轴标签
+  \node[below,gray] at (\W,-0.4) {\small\itshape 任务难度 →};
+  \node[rotate=90,left,gray] at (-0.4,\H) {\small\itshape 数据涉密性 →};
+\end{tikzpicture}
+\caption{科研 AI 工具选用决策矩阵。\textbf{建议在中科院体系内推行此矩阵作为日常工具选择指南。}}
+\end{figure}
+
+\subsection{结语}
+
+\vspace{4pt}
+\begin{tcolorbox}[colback=primary,coltext=white,colframe=primary,boxrule=0pt,
+                  arc=2pt,left=14pt,right=14pt,top=12pt,bottom=12pt]
+\sffamily\Large\bfseries
+用 ¥200 万 / 年的极小开支，让全院 2 万科研人员手里都有一个真正能用的 AI——这是 2026 年最高 ROI 的科研基础设施投资之一。
+\end{tcolorbox}
+
+% =============================================================
+\appendix
+\section{参考资料}
+\label{sec:references}
+
+本报告中涉及的所有事实数据均来自以下公开来源，可供进一步核实：
+
+\medskip
+\begin{enumerate}[leftmargin=22pt]
+\item \textbf{磐石·科学基础大模型 / S1-Base 系列模型卡}（含参数规模、训练底座、上下文长度等技术细节）：\\
+\url{https://huggingface.co/ScienceOne-AI/S1-Base-671B}
+
+\item \textbf{中国科学院"磐石 100"模型体系发布新闻稿}（中国科学院自动化研究所，2026-04-29）：\\
+\url{http://www.ia.cas.cn/xwzx/ttxw/202604/t20260429_8194266.html}
+
+\item \textbf{磐石·科学基础大模型正式发布}（中国科学院官网，2025-07-25）：\\
+\url{https://www.cas.cn/yw/202507/t20250725_5077713.shtml}
+
+\item \textbf{磐石 ScienceOne 科研智能平台官网}：\\
+\url{https://www.scienceone.cn/}
+
+\item \textbf{DeepSeek V4 API 模型与定价官方文档}（含上下文长度、人民币定价、缓存优惠等）：\\
+\url{https://api-docs.deepseek.com/quick_start/pricing}
+
+\item \textbf{DeepSeek V4-Pro API 限时 2.5 折优惠官方公告}：\\
+\url{https://www.ithome.com/0/944/356.htm}
+
+\item \textbf{Claude Opus 4.7 官方文档与定价}（Anthropic，2026）：\\
+\url{https://platform.claude.com/docs/en/about-claude/pricing}
+
+\item \textbf{Claude Opus 4.7 模型介绍}（Anthropic）：\\
+\url{https://platform.claude.com/docs/en/about-claude/models/whats-new-claude-4-7}
+\end{enumerate}
+
+\bigskip
+\textit{本报告中的所有 token 价格按 2026 年 5 月初官方标价计算；2.5 折优惠以及缓存命中折扣未计入主测算，实际报销开支可能更低。}

@@ -1,0 +1,69 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "api_error_status": null,
+  "duration_ms": 16506,
+  "duration_api_ms": 18185,
+  "num_turns": 1,
+  "result": "# 解\n\n**最小值为 $\\dfrac{3}{4}$，当且仅当 $a=b=c=1$ 时取等。**\n\n## 证明\n\n记 $S = \\dfrac{a^3}{(1+b)(1+c)} + \\dfrac{b^3}{(1+c)(1+a)} + \\dfrac{c^3}{(1+a)(1+b)}$.\n\n**关键步骤（AM-GM 配凑）**：对每一项使用三元 AM-GM：\n\n$$\n\\frac{a^3}{(1+b)(1+c)} + \\frac{1+b}{8} + \\frac{1+c}{8} \\;\\geq\\; 3\\sqrt[3]{\\frac{a^3}{(1+b)(1+c)} \\cdot \\frac{1+b}{8} \\cdot \\frac{1+c}{8}} = \\frac{3a}{4}.\n$$\n\n对 $b, c$ 类似地写两式，三式相加：\n\n$$\nS + \\frac{2(3 + a+b+c)}{8} \\;\\geq\\; \\frac{3(a+b+c)}{4}.\n$$\n\n整理得\n\n$$\nS \\;\\geq\\; \\frac{3(a+b+c)}{4} - \\frac{3+a+b+c}{4} \\;=\\; \\frac{2(a+b+c) - 3}{4}.\n$$\n\n**收尾**：由 $abc=1$ 与 AM-GM 知 $a+b+c \\geq 3\\sqrt[3]{abc} = 3$，故\n\n$$\nS \\;\\geq\\; \\frac{2\\cdot 3 - 3}{4} \\;=\\; \\frac{3}{4}.\n$$\n\n## 等号条件\n\n链中所有 AM-GM 同时取等需要：\n- $\\dfrac{a^3}{(1+b)(1+c)} = \\dfrac{1+b}{8} = \\dfrac{1+c}{8}$（以及 $b, c$ 对应的两式），\n- $a = b = c$.\n\n结合 $abc = 1$，解得 $a = b = c = 1$，此时 $S = 3 \\cdot \\dfrac{1}{2 \\cdot 2} = \\dfrac{3}{4}$.\n\n$$\\boxed{\\,S_{\\min} = \\dfrac{3}{4},\\ \\text{当且仅当 } a=b=c=1.\\,}$$",
+  "stop_reason": "end_turn",
+  "session_id": "aa913015-acd9-48fe-8270-e169c83f2fdd",
+  "total_cost_usd": 0.08841924999999999,
+  "usage": {
+    "input_tokens": 5,
+    "cache_creation_input_tokens": 7361,
+    "cache_read_input_tokens": 19826,
+    "output_tokens": 1277,
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 7361,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [
+      {
+        "input_tokens": 5,
+        "output_tokens": 1277,
+        "cache_read_input_tokens": 19826,
+        "cache_creation_input_tokens": 7361,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 7361
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 470,
+      "outputTokens": 16,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.0005499999999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    },
+    "claude-opus-4-7": {
+      "inputTokens": 5,
+      "outputTokens": 1277,
+      "cacheReadInputTokens": 19826,
+      "cacheCreationInputTokens": 7361,
+      "webSearchRequests": 0,
+      "costUSD": 0.08786925,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "uuid": "19b3d700-dba5-4ca5-a3b4-0d41461d81ea"
+}

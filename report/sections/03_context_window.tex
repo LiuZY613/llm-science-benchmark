@@ -1,0 +1,101 @@
+\section{为什么"AI 一次能记多少字"决定了能不能用}
+\label{sec:context}
+
+第~\ref{sec:three_models} 节列出的所有指标里，\textbf{"一次能记多少字"}（即上下文长度）是\textbf{对科研用户体验影响最大的单一指标}。本节用通俗的方式说明这一指标的重要性，以及磐石与商业 API 之间数量级差距的实际后果。
+
+\subsection{一个公文场景的类比}
+
+设想这样一个场景：你让一位秘书帮你处理一份\textbf{国家自然科学基金重点项目申报书}（含正文、附件、参考文献，约 8 万字）的整理与精炼工作，要求他通读全部材料，再撰写一份精炼的修改建议。
+
+\begin{itemize}
+\item \textbf{用磐石}：他只能拿到申报书的\textbf{前 1/3}（约 3 万字），后面 2/3 完全看不到。他写出来的"建议"必然只覆盖前 1/3 的内容，后面的关键技术路线、预算说明、合作单位资料全部漏掉。\textbf{并且，他写建议本身也要消耗"工作记忆"——意味着哪怕材料只有 4 万字，他也未必能完整读完后留出空间写回复。}
+
+\item \textbf{用 DeepSeek V4 Pro 或 Claude Opus 4.7}：他可以\textbf{一次完整通读全部 8 万字}，并在脑中保留所有内容的同时写出针对每一节的精炼建议、跨章节的一致性问题，甚至附件中的数据矛盾。
+\end{itemize}
+
+\textbf{这不是"快慢之差"，而是"能做"与"做不了"的差别。}
+
+\subsection{数字对比与等价物}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+  % 横向柱状图：3 个柱子，体现数量级差距
+  \def\barH{0.55}
+  % 磐石
+  \fill[accent!75] (0,0) rectangle (0.4, \barH);
+  \node[anchor=west] at (0.5, \barH/2) {\small\textbf{磐石 100：约 4 万字}};
+  % DeepSeek
+  \fill[primary!75] (0,-1.1) rectangle (10, -1.1+\barH);
+  \node[anchor=west,white] at (0.2, -1.1+\barH/2) {\small\textbf{DeepSeek V4 Pro：约 100 万字}};
+  % Claude
+  \fill[primary!75] (0,-2.2) rectangle (10, -2.2+\barH);
+  \node[anchor=west,white] at (0.2, -2.2+\barH/2) {\small\textbf{Claude Opus 4.7：约 100 万字}};
+  % 标尺
+  \draw[->,gray] (0,-3) -- (10.3,-3);
+  \foreach \x/\lab in {0/0, 2.5/25, 5/50, 7.5/75, 10/100} {
+    \draw[gray] (\x,-3) -- (\x,-3.1);
+    \node[gray,below,font=\scriptsize] at (\x,-3.05) {\lab\,万字};
+  }
+\end{tikzpicture}
+\caption{三个模型一次能处理的中文字数对比。\textbf{磐石的"工作记忆"只有商业 API 的约 1/25}，在长文档场景下差异是数量级的。}
+\end{figure}
+
+为帮助没有 AI 使用经验的读者理解这两个数字的真实含义，下表给出公文场景下的等价物：
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}c X@{}}
+\toprule
+\rowcolor{primary!15}
+\textbf{字数量级} & \textbf{大约相当于（公文场景）} \\
+\midrule
+3--5 万字（磐石）&
+一份地厅级单位的年度工作总结 \emph{或}
+一份面上项目申报书的正文部分 \\
+\midrule
+\cellcolor{primary!8}100 万字（商业 API）&
+\cellcolor{primary!8}\makecell[l]{
+一个研究所 5 年的全部学术报告合集 \emph{或}\\
+一份完整的国家科技重大专项立项 + 中期 + 结题材料 \emph{或}\\
+7--10 篇博士学位论文} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{对实际科研任务的影响}
+
+下表对照常见科研任务所需的上下文长度（\textbf{含输入材料 + 模型推理过程 + 输出回复}）与三个模型的能力边界。需要特别指出：\textbf{AI 的推理与输出本身也要占用工作记忆}——即哪怕一篇论文只有 4 万字，模型在读完后还需要额外的空间来"思考"和"写回复"，这部分通常是输入字数的 2--3 倍。因此，磐石的 32k token 上限实际可处理的"有效内容"远低于其名义值。
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\setlength{\tabcolsep}{6pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{5cm} >{\centering\arraybackslash}p{3.4cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{2cm} >{\centering\arraybackslash}p{1.5cm}@{}}
+\toprule
+\rowcolor{primary!15}
+\textbf{科研任务} & \makecell{\textbf{所需总字数}\\\textbf{\small(输入+推理+输出)}} & \textbf{磐石} & \textbf{DeepSeek} & \textbf{Claude} \\
+\midrule
+改一段论文摘要 & < 5 千字 & ✓ & ✓ & ✓ \\
+写论文 introduction & 1--2 万字 & ✓ & ✓ & ✓ \\
+单篇 arxiv 长论文精读综述 & 10--20 万字 & \cellcolor{accent!18}\textbf{✗} & ✓ & ✓ \\
+三篇相关论文交叉对比 & 30--50 万字 & \cellcolor{accent!18}\textbf{✗} & ✓ & ✓ \\
+完整项目结题报告分析 & 50--100 万字 & \cellcolor{accent!18}\textbf{✗} & ✓ & ✓ \\
+全所 5 年材料整合分析 & 100 万字以上 & \cellcolor{accent!18}\textbf{✗} & 临界 & 临界 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{结论}
+
+\begin{keypoint}
+\sffamily\textbf{本节结论}\\[3pt]
+\normalfont
+磐石的上下文上限决定了它\textbf{只能胜任最浅层的辅助写作任务}（改摘要、扩写段落、初稿润色）。
+\textbf{凡涉及完整论文阅读、跨文献对比、长文档分析的科研任务，磐石都做不了。}
+而这些恰恰是科研一线最高频、最高价值的 AI 用例。\\[3pt]
+要让 AI 真正提升科研效率，必须给科研人员开放\textbf{至少能处理 100 万字级别}的工具——目前国内外只有 DeepSeek V4 Pro、Claude Opus 4.7 等少数商业模型能达到这一标准。
+\end{keypoint}

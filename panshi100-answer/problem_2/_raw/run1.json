@@ -1,0 +1,21 @@
+{
+  "attempts_log": [
+    {
+      "attempt": 1,
+      "suffix": "",
+      "elapsed": 358.55774331092834,
+      "content_len": 0,
+      "reasoning_len": 14433,
+      "meta": {
+        "finish_reason": "length",
+        "usage": {
+          "prompt_tokens": 136,
+          "total_tokens": 8328,
+          "completion_tokens": 8192
+        },
+        "content_len": 0,
+        "reasoning_len": 14433
+      }
+    }
+  ]
+}

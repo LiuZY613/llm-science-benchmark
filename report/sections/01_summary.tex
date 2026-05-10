@@ -1,0 +1,26 @@
+\section{执行摘要}
+\label{sec:summary}
+
+近一年，国际顶级商业大模型（如 \textbf{Claude Opus 4.7}、\textbf{DeepSeek V4 Pro}）已成为科研人员日常工作的核心生产力工具，被广泛用于文献综述、论文写作、代码调试、数据分析、跨语言翻译等场景。中科院系统内已有部分研究人员通过各种途径自费或经费报销使用此类 API，这一需求已经客观存在。
+
+中科院体系内已部署 \textbf{磐石 100} 模型作为科研 AI 底座。磐石本身是基于 \textbf{DeepSeek-R1}（用于 671B 版本）与 \textbf{Qwen3}（用于 8B / 32B 版本）等开源模型，在科学领域微调而成。但其单次能处理的文本长度被限制在约 \textbf{3--5 万字}以内，远低于商业模型的 \textbf{100 万字}以上。在文献综述、长文档分析、跨文献对比等高价值科研任务上，能力差距是\textbf{数量级}的。
+
+本报告通过 4 个对比 demo 客观对比磐石、DeepSeek V4 Pro、Claude Opus 4.7 三者在科研任务上的实际表现，并测算了向科研人员开放商业 API 报销所需的成本。\textbf{核心结论如下}：
+
+\vspace{4pt}
+\begin{enumerate}[label=\textbf{\arabic*.}, leftmargin=22pt]
+\item \textbf{能力差距}：在长文档处理、复杂指令遵循、专业事实准确性等核心科研任务上，商业 API 性能显著优于磐石（详见第~\ref{sec:benchmarks} 节）。
+
+\item \textbf{成本可控}：按 2 万实际 AI 用户估算（详见第~\ref{sec:cost} 节），\textbf{方案 A}（仅报销 DeepSeek API）全院年度总开支约 \textbf{¥206 万}，约 1 个面上项目额度；\textbf{方案 B}（仅报销 Claude API）全院年度总开支约 \textbf{¥3,200 万}，约 1 个重点项目额度。两者均仅占中科院年度科研经费的 \textbf{万分之一以下}。
+
+\item \textbf{磐石作为 DeepSeek-R1 的科学领域微调版本，技术上已经过时}：磐石所基于的底座 DeepSeek-R1 已被原厂商迭代到 V4 Pro，参数规模、上下文长度、推理效率全面提升。继续以磐石作为通用科研 AI 工具，等同于使用上一代模型的科学微调老版本，且工作记忆被砍至原厂的 1/32。
+
+\item \textbf{合规可行}：DeepSeek API 国内可直接调用，符合数据合规要求；Claude 可通过合规海外节点调用，仅用于非涉密任务。
+\end{enumerate}
+
+\vspace{8pt}
+\begin{keypoint}
+\sffamily\textbf{核心建议}\\[4pt]
+\normalfont
+建议中科院科研经费管理办法将 \textbf{DeepSeek API}、\textbf{Claude API} 的合规调用费用纳入可报销项目，以\textbf{较小的开支换取全院范围内显著的科研效率提升}。
+\end{keypoint}

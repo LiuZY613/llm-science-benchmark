@@ -1,0 +1,47 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "api_error_status": null,
+  "duration_ms": 102349,
+  "duration_api_ms": 166017,
+  "num_turns": 1,
+  "result": "记\n\\[\nI_n=\\int_0^1\\frac{1}{1+x^n}\\,dx .\n\\]\n\n先把它改写成\n\\[\nI_n=1-\\int_0^1\\frac{x^n}{1+x^n}\\,dx .\n\\]\n\n对后一个积分作换元 \\(x=e^{-t/n}\\)（即 \\(t=-n\\ln x\\)），则 \\(x^n=e^{-t}\\)，\\(dx=\\frac{1}{n}e^{-t/n}\\,dt\\)，当 \\(x:0\\to1\\) 时 \\(t:\\infty\\to0\\)，于是\n\\[\n\\int_0^1\\frac{x^n}{1+x^n}\\,dx\n=\\frac1n\\int_0^\\infty\\frac{e^{-t}}{1+e^{-t}}\\,e^{-t/n}\\,dt\n=\\frac1n\\int_0^\\infty\\frac{e^{-t}}{1+e^{-t}}\\left(1-\\frac{t}{n}+O\\!\\left(\\frac1{n^2}\\right)\\right)dt .\n\\]\n\n计算零阶项：\n\\[\n\\int_0^\\infty\\frac{e^{-t}}{1+e^{-t}}\\,dt\n=\\int_0^\\infty\\frac{1}{e^t+1}\\,dt\n=\\Bigl[-\\ln(1+e^{-t})\\Bigr]_0^\\infty=\\ln2 .\n\\]\n\n因此\n\\[\n\\int_0^1\\frac{x^n}{1+x^n}\\,dx\n=\\frac{\\ln2}{n}-\\frac{1}{n^2}\\int_0^\\infty\\frac{t\\,e^{-t}}{1+e^{-t}}\\,dt+O\\!\\left(\\frac1{n^3}\\right).\n\\]\n\n代回 \\(I_n\\) 的表达式得\n\\[\nI_n-1+\\frac{\\ln2}{n}\n=\\frac{1}{n^2}\\int_0^\\infty\\frac{t\\,e^{-t}}{1+e^{-t}}\\,dt+O\\!\\left(\\frac1{n^3}\\right).\n\\]\n\n乘以 \\(n^2\\) 并令 \\(n\\to\\infty\\)，极限化为\n\\[\nL=\\int_0^\\infty\\frac{t}{e^t+1}\\,dt .\n\\]\n\n把被积函数展开为几何级数：\n\\[\n\\frac{1}{e^t+1}=\\sum_{k=1}^{\\infty}(-1)^{k-1}e^{-kt},\n\\qquad t>0,\n\\]\n逐项积分（收敛性保证）：\n\\[\nL=\\sum_{k=1}^{\\infty}(-1)^{k-1}\\int_0^\\infty t\\,e^{-kt}\\,dt\n=\\sum_{k=1}^{\\infty}\\frac{(-1)^{k-1}}{k^2}\n=\\eta(2),\n\\]\n其中 \\(\\eta(s)\\) 为 Dirichlet eta 函数。利用 \\(\\eta(s)=(1-2^{1-s})\\zeta(s)\\) 得\n\\[\nL=(1-2^{-1})\\zeta(2)=\\frac12\\cdot\\frac{\\pi^2}{6}=\\frac{\\pi^2}{12}.\n\\]\n\n\\[\n\\boxed{\\dfrac{\\pi^2}{12}}\n\\]",
+  "stop_reason": "end_turn",
+  "session_id": "038cb257-4c3b-46fc-bf37-615e55881afe",
+  "total_cost_usd": 0.22833749999999997,
+  "usage": {
+    "input_tokens": 3960,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 21760,
+    "output_tokens": 5366,
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "kimi-k2.6": {
+      "inputTokens": 4225,
+      "outputTokens": 7848,
+      "cacheReadInputTokens": 22025,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.22833749999999997,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "uuid": "2c8bcfa7-b403-4510-af01-cde57198cf39"
+}

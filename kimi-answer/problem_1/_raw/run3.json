@@ -1,0 +1,17 @@
+{
+  "attempts_log": [
+    {
+      "attempt": 1,
+      "suffix": "",
+      "elapsed": 686.8492896556854,
+      "content_len": 0,
+      "reasoning_len": 49934,
+      "meta": {
+        "finish_reason": "length",
+        "usage": {},
+        "content_len": 0,
+        "reasoning_len": 49934
+      }
+    }
+  ]
+}

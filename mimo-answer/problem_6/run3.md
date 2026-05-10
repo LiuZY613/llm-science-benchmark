@@ -1,0 +1,42 @@
+﻿# problem_6 / run3 — opus (claude-opus-4-7)
+
+- elapsed: 65.0s
+- exit_code: 0
+- turns: 1
+- stop_reason: end_turn
+- usage: {'input_tokens': 26870, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': 2048, 'output_tokens': 3661, 'server_tool_use': {'web_search_requests': 0, 'web_fetch_requests': 0}, 'service_tier': 'standard', 'cache_creation': {'ephemeral_1h_input_tokens': 0, 'ephemeral_5m_input_tokens': 0}, 'inference_geo': '', 'iterations': [], 'speed': 'standard'}
+
+---
+
+# 概率题 6 —— 求解
+
+## 建模
+
+定义 $Q(k)$：$k$ 名乘客中第 1 位从全部 $k$ 个座位等概率随机选座时，最后一位乘客坐到自己座位的概率。
+
+**递推关系**：第 1 位乘客选座后：
+- 选到**自己座位**（概率 $1/k$）：剩余乘客全部对号入座，成功。
+- 选到**最后一位的座位**（概率 $1/k$）：最后一位一定不能坐自己座位，失败。
+- 选到第 $j$ 号座位（$2 \le j \le k-1$，概率 $1/k$）：第 $2$ 到 $j-1$ 号对号入座，第 $j$ 号被挤占后从剩余座位中随机选，问题等价于规模 $k-j+1$ 的子问题。
+
+$$Q(k) = \frac{1}{k} + \frac{1}{k}\sum_{j=2}^{k-1} Q(k-j+1) = \frac{1}{k} + \frac{1}{k}\sum_{m=2}^{k-1}Q(m)$$
+
+**验证**：$Q(2)=\tfrac{1}{2}$，$Q(3)=\tfrac{1}{3}+\tfrac{1}{3}\cdot\tfrac{1}{2}=\tfrac{1}{2}$，$Q(4)=\tfrac{1}{4}+\tfrac{1}{4}\cdot 1=\tfrac{1}{2}$。
+
+归纳可证 $Q(k) = \dfrac{1}{2}$ 对所有 $k\ge 2$ 成立。
+
+## 计算 $P(100)$
+
+1 号乘客的行为：
+- 概率 $\dfrac{1}{2}$：坐 1 号座 → 100 号必坐自己座。
+- 概率 $\dfrac{1}{2}$：从 2\~100 中等概率选一个（共 99 个座位）。
+
+$$P = \frac{1}{2}\cdot 1 + \frac{1}{2}\cdot\frac{1}{99}\left[\underbrace{0}_{\text{选100号}} + \sum_{j=2}^{99}\underbrace{Q(100-j+1)}_{=1/2}\right]$$
+
+$$P = \frac{1}{2} + \frac{1}{2}\cdot\frac{1}{99}\cdot\frac{98}{2} = \frac{1}{2} + \frac{49}{198} = \frac{99+49}{198} = \frac{148}{198} = \frac{74}{99}$$
+
+其中 $\gcd(74,99)=1$（$74=2\times 37$，$99=9\times 11$），已是最简。
+
+## 结果
+
+$$\boxed{\dfrac{74}{99}}$$
