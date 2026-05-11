@@ -226,7 +226,8 @@ footer a{color:var(--primary-light)}
 <div class="hero">
   <h1>科研大模型实测对比报告</h1>
   <div class="subtitle">Claude Opus 4.7 / DeepSeek V4 Pro / MiMo V2.5 Pro / Kimi K2.6 / 磐石100 — 三项 Benchmark 客观对比</div>
-  <div class="date">2026 年 5 月 10 日 · 基于 3 项 Benchmark 共 24 次独立运行</div>
+  <div class="date">2026 年 5 月 10 日 · 基于 3 项 Benchmark 共 20 次独立运行</div>
+  <div class="date" style="margin-top:2px">作者：中科院物理所 刘宗岳 王磊 组</div>
 </div>
 
 <!-- ======================== §1 SUMMARY ======================== -->
@@ -244,7 +245,7 @@ footer a{color:var(--primary-light)}
     <ol style="margin:4px 0;padding-left:22px">
       <li><strong>能力差距显著</strong>：加权均分 deepseek 96.3、opus 94.7、kimi 92.5、MiMo 83.7、磐石100 30.9。磐石在三项任务中均垫底，MiMo 居中。</li>
       <li><strong>系统性失败</strong>：磐石100 在 01 数学推理中 3/6 题空输出（推理词元耗尽），02 代码调试仅 0.4/10（turns=1，伪工具调用），03 引用核查 0/10（turns=1，从未实际搜索）。失败模式一致，非偶然（详见 §5.4）。</li>
-      <li><strong>能力断档</strong>：磐石上下文仅 32k 词元，商业模型 1024k 词元，相差 30 倍。凡涉及 agent 工具调用、多轮反馈迭代、长文档分析的任务，磐石均不可用。商业模型在科研一线目前没有替代品。</li>
+      <li><strong>能力断档</strong>：磐石上下文仅 32k 词元，商业模型 1024k 词元，相差 30 倍。凡涉及 agent 工具调用、多轮反馈迭代、长文档分析的任务，磐石均不可用。</li>
     </ol>
   </div>
 </section>
@@ -382,9 +383,8 @@ footer a{color:var(--primary-light)}
       <tr>
         <td class="l">训练数据量</td><td>微调 1.7 亿论文</td><td>预训练 32T 词元</td><td>未公开（业界估计同量级）</td><td>未公开</td><td>未公开</td>
       </tr>
-      <tr>
-        <td class="l">对外 API</td><td class="bad">否（仅院内部署）</td><td class="ok">是（境内直调）</td><td class="ok">是（需海外节点）</td><td class="ok">是（Token Plan·境内直调）</td><td class="ok">是（境内直调）</td>
-      </tr>
+
+
       <tr>
         <td class="l">参考单价<br><span style="font-weight:400;font-size:11px">输入/输出 ¥/M 词元</span></td><td>—</td><td>¥3 / ¥6</td><td>¥36 / ¥180</td><td>订阅制</td><td>¥6.5 / ¥27</td>
       </tr>
@@ -481,6 +481,75 @@ footer a{color:var(--primary-light)}
       <li><strong>262k 词元（Kimi）可胜任中等复杂度的 agent 任务</strong>（单项目调试、论文引用核查），但跨文献对比等深度 agent 任务仍显紧张。</li>
       <li><strong>1024k 词元级别是科研 agent 工作流的事实标准</strong>——DeepSeek V4 Pro、Claude Opus 4.7、MiMo V2.5 Pro 在此级别均能完成全部三项 Benchmark。</li>
       <li><strong>不是"快慢之差"，而是"能做"与"做不了"的差别。</strong>上下文窗口直接决定了 agent 工作流能否跑起来。</li>
+    </ul>
+  </div>
+
+  <h3>4.5 速度与稳定性：同样的 Agent 任务，耗时差出 4 倍</h3>
+
+  <p>上下文窗口决定了"能不能跑"，而<strong>速度和稳定性决定了"跑起来之后好不好用"</strong>。在 agent 工作流中，速度的差异是乘数级的——每轮慢几秒，60 轮之后就是几十分钟的差距。</p>
+
+  <table class="data compact">
+    <thead>
+      <tr>
+        <th style="text-align:left">模型</th>
+        <th>02 代码 Debug</th>
+        <th>03 引用核查</th>
+        <th>单轮均速 (03)</th>
+        <th>稳定性问题</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="l">opus</td>
+        <td class="ok">130.8s · 20 turns</td>
+        <td class="ok">610.9s · 64 turns</td>
+        <td class="ok">~9.5s/turn</td>
+        <td class="ok">0 次</td>
+      </tr>
+      <tr>
+        <td class="l">deepseek</td>
+        <td class="warn">464.5s · 21 turns</td>
+        <td class="warn">2495.0s · 65 turns</td>
+        <td class="warn">~38.4s/turn</td>
+        <td class="ok">0 次</td>
+      </tr>
+      <tr>
+        <td class="l">mimo</td>
+        <td class="warn">327.7s · ~20 turns</td>
+        <td class="ok">848.8s · ~25 turns</td>
+        <td class="warn">~34.0s/turn</td>
+        <td class="ok">0 次</td>
+      </tr>
+      <tr>
+        <td class="l">kimi</td>
+        <td class="ok">119.9s · 19 turns</td>
+        <td class="warn">2363.5s · 63 turns</td>
+        <td class="warn">~37.5s/turn</td>
+        <td class="warn">2 次</td>
+      </tr>
+      <tr class="hl">
+        <td class="l">磐石100</td>
+        <td class="bad">225.8s · 1 turn</td>
+        <td class="bad">59.2s · 1 turn</td>
+        <td class="bad">—</td>
+        <td class="bad">系统性</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>关键发现：</p>
+  <ol>
+    <li><strong>opus 速度碾压。</strong>同是跑完 03 引用核查（60+ turns），opus 仅需 10 分钟，deepseek 和 kimi 均超 39 分钟——<strong>4 倍差距</strong>。这不仅是等待时间问题：在实际开发中，如果你需要改一段代码、跑一下、看结果、再改——每次 agent 循环等 40 分钟 vs 等 10 分钟，迭代效率差出 4 倍。</li>
+    <li><strong>磐石的"慢"不是速度问题，是失败问题。</strong>磐石在 01 数学推理中 Q5 耗时 <strong>753 秒（12 分 33 秒）</strong>——是所有模型中单题耗时最长的——但输出被截断，只得到 5 分。而在 02/03 中"快"（225s / 59s）是因为首轮就 <code>end_turn</code> 放弃——耗时没有意义。用户等待时间被白白浪费，却得不到可用结果。这就是<strong>"慢到没法用"</strong>的本质：不只是慢，是付出等待成本后依然失败。</li>
+    <li><strong>deepseek 速度垫底但质量顶格。</strong>03 中 65 turns 耗时 41 分钟，但 8/8 TP 全命中（唯一做到满分的模型）。速度与质量之间存在权衡——科研用户需要根据任务紧急程度选择。</li>
+  </ol>
+
+  <div class="keypoint">
+    <div class="kp-title">速度与上下文窗口的叠加效应</div>
+    <ul>
+      <li>上下文窗口决定了模型能不能启动 agent 模式——磐石 32k 连门都进不去。</li>
+      <li>速度决定了 agent 模式启动后，用户能否承受迭代成本——deepseek 质量高但 40+ 分钟的等待迫使科研人员规划好再提交。</li>
+      <li><strong>opus 是唯一在速度和能力上同时达到顶级的模型</strong>——1024k 上下文 + 10 分钟完成 03，是目前科研 agent 工作流的最佳组合。</li>
     </ul>
   </div>
 </section>
@@ -735,6 +804,78 @@ footer a{color:var(--primary-light)}
       <li><strong>磐石本质上是 DeepSeek-R1 的科学微调版本</strong>——但其底座模型已被原厂商迭代五代（R1 → V3 → V3.1 → V4 → V4 Pro）。磐石在模型参数、上下文长度、推理效率、工具使用能力上已全面落后于现役商业模型。尤其上下文被裁切至原版的 1/32，且未经过工具使用训练，导致其在科研一线最核心的两项能力上（长文档处理、自动化工作流）不具备可用性。</li>
     </ul>
   </div>
+
+  <h4>五模型稳定性对比</h4>
+
+  <p>稳定性直接影响实际可用性——一个能在 10 分钟内稳定跑完 60+ turns agent 任务的模型，与一个思考到一半空输出、或者偶尔超时挂掉的模型，对科研工作流的信任度截然不同。</p>
+
+  <table class="data compact">
+    <thead>
+      <tr>
+        <th style="text-align:left">模型</th>
+        <th>01 异常 / 总运行</th>
+        <th>02 Agent 状态</th>
+        <th>03 Agent 状态</th>
+        <th>故障模式</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="l">opus</td>
+        <td class="ok">0 / 18</td>
+        <td class="ok">✓ 正常 · 20 turns</td>
+        <td class="ok">✓ 正常 · 64 turns</td>
+        <td class="ok">无</td>
+      </tr>
+      <tr>
+        <td class="l">deepseek</td>
+        <td class="ok">0 / 18</td>
+        <td class="ok">✓ 正常 · 21 turns</td>
+        <td class="ok">✓ 正常 · 65 turns</td>
+        <td class="ok">无</td>
+      </tr>
+      <tr>
+        <td class="l">mimo</td>
+        <td class="ok">0 / 18*</td>
+        <td class="ok">✓ 正常 · ~20 turns</td>
+        <td class="ok">✓ 正常 · ~25 turns</td>
+        <td>Q5 三跑全错（非稳定性故障）</td>
+      </tr>
+      <tr>
+        <td class="l">kimi</td>
+        <td class="warn">2 / 18</td>
+        <td class="ok">✓ 正常 · 19 turns</td>
+        <td class="ok">✓ 正常 · 63 turns</td>
+        <td>1 次推理耗尽（空输出）+ 1 次超时（进程被杀）</td>
+      </tr>
+      <tr class="hl">
+        <td class="l">磐石100</td>
+        <td class="bad">12 / 18</td>
+        <td class="bad">✗ turns=1</td>
+        <td class="bad">✗ turns=1</td>
+        <td>系统性：9 次空输出 + 1 SSL + 1 HTTP 502 + 1 截断 + 2 次 agent 首轮放弃</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="note"><strong>*</strong> MiMo 在 01 中 Q5 三跑全错、Q2 run3 定点错误、Q6 run2 概率错误，但这些均为答案错误（模型输出正常完成），不属于稳定性故障（空输出 / 超时 / 崩溃）。</p>
+
+  <p>关键观察：</p>
+  <ol>
+    <li><strong>opus 与 deepseek 在全部 3 项 Benchmark 中零稳定性故障。</strong>18 次单轮推理 + 2 次长 agent 任务均正常完成，未出现空输出、超时、或中途崩溃。这对实际科研使用至关重要——用户可以放心将长任务交给它们，而不必担心半小时后回来发现挂了。</li>
+    <li><strong>03 引用核查是最严苛的稳定性压力测试。</strong>该任务要求模型在 agent 模式下逐条验证 23 条引用，每条可能触发 WebSearch → 读结果 → 交叉比对 → 下一条，累计 60+ turns。任何一轮的网络波动、推理中断、或 token 预算耗尽都可能导致任务失败。opus（64 turns · 10 分钟）、deepseek（65 turns · 41 分钟）、kimi（63 turns · 39 分钟）均稳定完成，说明具备实际审稿场景的可用性。</li>
+    <li><strong>kimi 的 2 次故障均出现在 01 单轮模式</strong>（1 次推理耗尽、1 次超时），但在 agent 任务中完全稳定——best-of-3 采样策略可以覆盖这类偶发故障。</li>
+    <li><strong>磐石的故障不是"偶发"而是"必然"。</strong>01 中 12/18 异常运行中，9 次空输出在 3 道不同题目上 3 次采样一致复现；02/03 中 turns=1 在两个独立 agent 任务上一致复现。这排除了网络波动或随机因素的干扰，确认是模型能力层面的系统性缺陷。</li>
+  </ol>
+
+  <div class="keypoint warn">
+    <div class="kp-title">稳定性结论</div>
+    <ul>
+      <li><strong>商业模型（opus / deepseek / kimi / MiMo）在 agent 任务中稳定性过硬</strong>——4 个模型合计 8 次 agent 运行，零崩溃、零超时、零空输出。</li>
+      <li><strong>磐石 100 在任何稍复杂任务上均不稳定</strong>——无论是单轮推理还是 agent 工作流，失败是可预期的而非偶然的。</li>
+      <li><strong>"思考一半挂掉"恰恰是磐石的真实体验</strong>：01 Q5 中用户等待 12 分 33 秒后，收到的不是答案而是截断的中间结果；02/03 中 agent 首轮即放弃，用户连等待的机会都没有。这种"不可靠"在实际科研场景中比"慢"更为致命。</li>
+    </ul>
+  </div>
 </section>
 
 <!-- ======================== REFERENCES ======================== -->
@@ -753,7 +894,7 @@ footer a{color:var(--primary-light)}
 </section>
 
 <footer>
-  报告生成于 2026-05-10 · 基于 3 项 Benchmark 共 24 次独立模型调用 · 原始输出与评分标准均已开源<br>
+  报告生成于 2026-05-10 · 基于 3 项 Benchmark 共 20 次独立模型调用 · 原始输出与评分标准均已开源<br>
   <a href="benchmark01.html">benchmark01.html</a> ·
   <a href="benchmark02.html">benchmark02.html</a> ·
   <a href="benchmark03.html">benchmark03.html</a>
