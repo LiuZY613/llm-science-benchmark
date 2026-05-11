@@ -1,5 +1,7 @@
 # 科研大模型实测对比 Benchmark
 
+[**→ 查看完整对比报告（交互式 HTML）**](https://liuzy613.github.io/llm-science-benchmark/)
+
 五款大语言模型在 **3 项科研任务** 上的客观对比评测，覆盖数学推理、代码调试、引用核查。
 
 ## 参评模型
@@ -22,7 +24,7 @@
 | MiMo | 50/60 | 10.0/10 | 6.9/10 | **83.7** |
 | 磐石100 | 25/60 | 0.4/10 | 0.0/10 | **30.9** |
 
-> 加权：01 占 60%，02/03 各占 20%。报告详见 `report/index.html`。
+> 加权：01 占 60%，02/03 各占 20%。报告详见 `docs/index.html`。
 
 ## 3 项 Benchmark
 
@@ -118,7 +120,7 @@ python run_citation.py kimi 2                # kimi run2
 - `solutions/code_debug/bugs_reference.md` — 5 Bug 标准答案 + 评分细则
 - `solutions/citation/bugs_reference.md` — 8 处引用错误标准答案 + 评分细则
 
-结果输出在 `<model>-answer/` 目录，对照评分基准手工打分。完整报告见 `report/index.html`。
+结果输出在 `<model>-answer/` 目录，对照评分基准手工打分。完整报告见 `docs/index.html`。
 
 ## 项目结构
 
@@ -146,7 +148,7 @@ benchmark/
 ├── mimo-answer/              # MiMo 原始输出
 ├── kimi-answer/              # kimi 原始输出
 ├── panshi100-answer/         # 磐石100 原始输出
-└── report/                   # HTML 对比报告
+└── docs/                     # HTML 对比报告
     ├── index.html
     ├── benchmark01.html
     ├── benchmark02.html
