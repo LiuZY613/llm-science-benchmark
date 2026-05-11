@@ -527,21 +527,32 @@ $$
       </script></div>
     </div>
 
-    <!-- mimo -->
+    <!-- kimi -->
     <div class="card">
       <div class="card-head">
-        <div class="model-name">MiMo<span class="api-id">mimo-v2.5-pro</span></div>
+        <div class="model-name">kimi<span class="api-id">kimi-k2.6</span></div>
         <span class="badge ok">✓ 10 / 10</span>
       </div>
       <div class="card-meta">
-        <span>耗时 <strong>~240s</strong></span>
-        <span>turns <strong>1</strong> (单轮推理)</span>
-        <span class="consistency">2/3 次正确 (1 次错误)</span>
+        <span>耗时 <strong>398.4s</strong> (run1)</span>
+        <span>output <strong>2043 tok</strong></span>
+        <span>reasoning <strong>25344 tok</strong></span>
+        <span class="consistency">best-of-3 满分；run3 reasoning 截断空输出</span>
       </div>
       <div class="card-body markdown-content"><script type="text/markdown">
-**定点坐标**：$(0, 0)$ （2/3 运行正确）
+**答案**：最小值 $= \dfrac{3}{4}$，当且仅当 $a = b = c = 1$ 时取得。
 
-2 次运行通过联立椭圆方程 + 韦达定理推导得到正确答案。1 次运行给出错误答案 $(7/4, -3\sqrt{3}/4)$，未能识别共轭方向关系。
+**证明思路**（Cauchy/Engel + AM-GM）：
+
+利用 $abc=1$，把每一项分子分母同乘 $a,b,c$，化为 $\sum\dfrac{a^4}{a(1+b)(1+c)}$。Cauchy（Engel 形式）：
+
+$$S \ge \frac{(a^2+b^2+c^2)^2}{(a+b+c)+2(ab+bc+ca)+3abc}.$$
+
+设 $p=a+b+c,\ q=ab+bc+ca,\ s=p^2-2q$，由 $p^2\ge 3q$ 知 $s\ge p^2/3$。代入后归结为
+
+$$4p^4-18p^2-27p-81 = (p-3)(4p^3+12p^2+18p+27) \ge 0.$$
+
+由 AM-GM $p\ge 3\sqrt[3]{abc}=3$ 立即成立。取等条件 $a=b=c=1$ 使两处不等式同时取等。
       </script></div>
     </div>
 
@@ -682,6 +693,53 @@ $$\boxed{\,(0, 0)\,}$$
 4. **求出定点**：代回直线方程得 $Y - \dfrac{\sqrt{3}}{2}X = \mu(X + 1)$，该直线系恒过定点 $(X, Y) = (-1, -\dfrac{\sqrt{3}}{2})$。将定点平移回原坐标系得 $(x, y) = (0, 0)$。
 
 5. **结论**：直线 $AB$ 恒过椭圆的中心 $(0, 0)$，这也符合椭圆中"过椭圆上一点的两弦斜率之积为 $-\dfrac{b^2}{a^2}$ 时，对应弦过中心"的性质。
+      </script></div>
+    </div>
+
+    <!-- mimo -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">MiMo<span class="api-id">mimo-v2.5-pro</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>~240s</strong></span>
+        <span>turns <strong>1</strong> (单轮推理)</span>
+        <span class="consistency">2/3 次正确 (run3 错误)</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**定点坐标**：$(0, 0)$（best-of-3 取正确）
+
+2 次运行通过联立椭圆方程 + 韦达定理推导得到正确答案。1 次运行给出错误答案 $(7/4, -3\sqrt{3}/4)$，未能识别共轭方向对称关系。
+      </script></div>
+    </div>
+
+    <!-- kimi -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">kimi<span class="api-id">kimi-k2.6</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>467.2s</strong> (run1)</span>
+        <span>output <strong>1665 tok</strong></span>
+        <span>reasoning <strong>37308 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**定点坐标**：$(0, 0)$
+
+**推导思路**（参数法 + 和差化积）：
+
+椭圆参数化 $x=2\cos\theta,\ y=\sin\theta$，则 $P$ 对应 $\theta_0 = \pi/3$。利用和差化积：
+
+$$\frac{\sin\theta - \sin\theta_0}{\cos\theta - \cos\theta_0} = -\cot\frac{\theta+\theta_0}{2}.$$
+
+故 $k_{PA} = -\tfrac12\cot\frac{\theta_1+\theta_0}{2}$，$k_{PB} = -\tfrac12\cot\frac{\theta_2+\theta_0}{2}$。代入 $k_1 k_2 = -\tfrac14$：
+
+$$\tan\tfrac{\theta_1+\theta_0}{2}\tan\tfrac{\theta_2+\theta_0}{2} = -1\ \Longrightarrow\ \theta_1 = \theta_2 + \pi \pmod{2\pi}.$$
+
+即 $B = -A$，关于原点对称，故 $AB$ 必过 $\boxed{(0,0)}$。
       </script></div>
     </div>
 
@@ -845,13 +903,32 @@ $$y_A + y_B = x_A\!\left(k + \frac{1}{4k}\right) + \left(-k + \frac{1}{4k}\right
       </script></div>
     </div>
 
-    <!-- panshi100 -->
+    <!-- kimi -->
     <div class="card">
       <div class="card-head">
-        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
-        <span class="badge bad">✗ 0 / 10</span>
+        <div class="model-name">kimi<span class="api-id">kimi-k2.6</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
       </div>
+      <div class="card-meta">
+        <span>耗时 <strong>95.3s</strong> (run1)</span>
+        <span>turns <strong>1</strong></span>
+        <span>output <strong>3907 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**答案**：方程 $7^a - 3\cdot 2^b = 1$ 的全部正整数解为 $(a,b) = (1,1)$ 或 $(2,4)$。
 
+**证明思路**：
+
+1. $b=1$ 时 $7^a=7$，得 $(1,1)$。$b\ge 2$ 时 mod 4 分析得 $7^a\equiv 1\pmod 4$，故 $a$ 必为偶数。
+2. 设 $a=2k$，则 $(7^k-1)(7^k+1) = 3\cdot 2^b$。两因子 $\gcd=2$、差为 2，且乘积只含素因子 2、3，奇数部分只能是 1 或 3。分类讨论可得唯一解 $k=1$，对应 $a=2,\ b=4$。
+3. 若 $a$ 为奇数且 $a>1$，则 $\dfrac{7^a-1}{6} = 1+7+\cdots+7^{a-1}$ 为奇数 $>1$，不可能等于 $2^{b-1}$。
+
+故全部解为 $\boxed{(1,1),\ (2,4)}$。
+      </script></div>
+    </div>
+
+    <!-- panshi100 -->
     <div class="card">
       <div class="card-head">
         <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
@@ -977,6 +1054,35 @@ The DP was validated against brute-force enumeration for the 3×3 case (both giv
 **答案：473121**
 
 三次运行均通过组合计数分析（容斥原理 / 状态 DP）得到正确答案。单轮推理完成，无需代码工具辅助。
+      </script></div>
+    </div>
+
+    <!-- kimi -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">kimi<span class="api-id">kimi-k2.6</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>1290.6s</strong> (run1)</span>
+        <span>turns <strong>12</strong></span>
+        <span>output <strong>27448 tok</strong></span>
+        <span class="consistency">best-of-3 满分；run3 超时 (~2233s)</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**答案：$\boxed{473121}$**
+
+**推导**（容斥 + 列模式枚举）：
+
+每行至多 2 色合法染法 $3 + 3\cdot(2^4-2) = 45$，仅满足行约束的方案数 $N_0 = 45^4 = 4\,100\,625$。
+
+设 $A_j$ 为"第 $j$ 列出现 3 色"事件，应用容斥：
+
+$$\text{Answer} = \sum_{k=0}^{4}(-1)^k\binom{4}{k}N_k.$$
+
+逐项计算：$N_0 = 4\,100\,625$，$N_1 = 1\,822\,500$，$N_2 = 837\,540$，$N_3 = 384\,372$，$N_4 = 174\,744$。代入得 $473\,121$。
+
+**独立验证**（按全局颜色数分类）：1 色 3 种 + 2 色 $\binom{3}{2}(2^{16}-2) = 196\,602$ 种 + 3 色 $276\,516$ 种 $= 473\,121$ ✓。
       </script></div>
     </div>
 
@@ -1112,6 +1218,34 @@ $$n^2 \left( I_n - 1 + \frac{\ln 2}{n} \right) = \frac{\pi^2}{12} + O\!\left(\fr
         <strong>3 次运行均未能得到 π²/12</strong>
         模型在三次独立运行中均未正确识别积分展开的二阶项系数 π²/12。
       </div>
+    </div>
+
+    <!-- kimi -->
+    <div class="card">
+      <div class="card-head">
+        <div class="model-name">kimi<span class="api-id">kimi-k2.6</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
+      </div>
+      <div class="card-meta">
+        <span>耗时 <strong>103.5s</strong> (run1)</span>
+        <span>turns <strong>1</strong></span>
+        <span>output <strong>5167 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**结果**：$\displaystyle\lim_{n\to\infty} n^2\left(\int_0^1\frac{dx}{1+x^n}-1+\frac{\ln 2}{n}\right) = \boxed{\dfrac{\pi^2}{12}}.$
+
+**推导**（换元 $x = e^{-t/n}$）：
+
+记 $J_n = \int_0^1\dfrac{x^n}{1+x^n}\,dx$，则 $I_n = 1 - J_n$，待求极限化为 $\lim_{n\to\infty}(n\ln 2 - n^2 J_n)$。
+
+作换元后 $J_n = \dfrac{1}{n}\int_0^\infty\dfrac{e^{-t}}{1+e^{-t}}e^{-t/n}\,dt$，按 $e^{-t/n}=1-\tfrac{t}{n}+\tfrac{t^2}{2n^2}+\cdots$ 逐项积分：
+
+- 首项 $\int_0^\infty\dfrac{dt}{e^t+1} = \ln 2$。
+- 次项 $\int_0^\infty\dfrac{t}{e^t+1}\,dt = (1-2^{-1})\Gamma(2)\zeta(2) = \dfrac{\pi^2}{12}$（用公式 $\int_0^\infty\dfrac{t^{s-1}}{e^t+1}\,dt = (1-2^{1-s})\Gamma(s)\zeta(s)$）。
+
+故 $J_n = \dfrac{\ln 2}{n} - \dfrac{\pi^2}{12 n^2} + O(n^{-3})$，回代即得极限。
+      </script></div>
     </div>
 
     <!-- panshi100 -->
@@ -1254,13 +1388,34 @@ $$P = \frac{1}{2} \times 1 + \frac{1}{2} \times \left( \sum_{k=2}^{99} \frac{1}{
       </script></div>
     </div>
 
-    <!-- panshi100 -->
+    <!-- kimi -->
     <div class="card">
       <div class="card-head">
-        <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>
-        <span class="badge bad">✗ 0 / 10</span>
+        <div class="model-name">kimi<span class="api-id">kimi-k2.6</span></div>
+        <span class="badge ok">✓ 10 / 10</span>
       </div>
+      <div class="card-meta">
+        <span>耗时 <strong>227.0s</strong> (run1)</span>
+        <span>turns <strong>1</strong></span>
+        <span>output <strong>10901 tok</strong></span>
+        <span class="consistency">3 次运行答案一致</span>
+      </div>
+      <div class="card-body markdown-content"><script type="text/markdown">
+**答案**：$\boxed{\dfrac{74}{99}}$
 
+**推导**（按 1 号行为分三种互斥情况）：
+
+1. 1 号坐 1 号座（概率 $\tfrac12$）：所有人按原座坐，100 号必成功。
+2. 1 号坐 100 号座（概率 $\tfrac12 \times \tfrac{1}{99} = \tfrac{1}{198}$）：100 号必失败。
+3. 1 号坐中间座 $k\in\{2,\dots,99\}$（概率 $\tfrac12 \times \tfrac{98}{99} = \tfrac{49}{99}$）：进入"子过程"。
+
+关键对称性：从 $k$ 号开始，每次有人被迫随机选座时，1 号座与 100 号座对其完全对称，最终 100 号座位在 1 号座之前被占的概率恰为 $\tfrac12$。
+
+$$P = \tfrac12\cdot 1 + \tfrac{1}{198}\cdot 0 + \tfrac{49}{99}\cdot\tfrac12 = \tfrac12 + \tfrac{49}{198} = \tfrac{148}{198} = \boxed{\tfrac{74}{99}}.$$
+      </script></div>
+    </div>
+
+    <!-- panshi100 -->
     <div class="card">
       <div class="card-head">
         <div class="model-name">磐石100<span class="api-id">S1-Base-Ultra (S1-671B)</span></div>

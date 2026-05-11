@@ -234,7 +234,7 @@ footer a{color:var(--primary-light)}
 <div class="hero">
   <h1>科研大模型实测对比报告</h1>
   <div class="subtitle">Claude Opus 4.7 / DeepSeek V4 Pro / MiMo V2.5 Pro / Kimi K2.6 / 磐石100 — 三项 Benchmark 客观对比</div>
-  <div class="date">2026 年 5 月 10 日 · 基于 3 项 Benchmark 共 20 次独立运行</div>
+  <div class="date">2026 年 5 月 10 日 · 基于 3 项 Benchmark · 每模型 20 次独立运行</div>
   <div class="date" style="margin-top:2px">作者：中科院物理所 刘宗岳 王磊 组</div>
 </div>
 
@@ -244,16 +244,16 @@ footer a{color:var(--primary-light)}
 
   <p>近一年，国际顶级商业大模型（<strong>Claude Opus 4.7</strong>、<strong>DeepSeek V4 Pro</strong>）已成为科研人员日常工作的核心生产力工具，被广泛用于文献综述、论文写作、代码调试、数据分析等场景。</p>
 
-  <p>中科院体系内部署的<strong>磐石 100</strong>模型，基于 DeepSeek-R1 (671B 版本) 与 Qwen3 (8B/32B 版本) 微调，上下文长度限制为 <strong>32k 词元</strong>。同期商业模型的上下文长度已达 <strong>1024k 词元</strong>，相差约 30 倍。</p>
+  <p>中科院体系内部署的<strong>磐石 100</strong>模型，基于 DeepSeek-R1 (671B 版本) 与 Qwen3 (8B/32B 版本) 微调，上下文长度限制为 <strong>32k 词元</strong>。同期商业模型的上下文长度已达 <strong>1024k 词元</strong>，相差约 32 倍。</p>
 
-  <p>本报告通过 <strong>3 项 Benchmark 实测</strong>（数学推理、代码调试、引用核查），客观对比<strong>五者</strong>实际表现。所有运行均可复现——原始输出、评分标准与验证脚本均已公开（见 <a href="benchmark01.html">01</a> / <a href="benchmark02.html">02</a> / <a href="benchmark03.html">03</a> 详细报告）。</p>
+  <p>本报告通过 <strong>3 项 Benchmark 实测</strong>（数学推理、代码调试、引用核查），客观对比<strong>五者</strong>实际表现。每个模型独立运行 20 次（数学 18 次 + 代码 1 次 + 引用 1 次），所有运行均可复现——原始输出、评分标准与验证脚本均已公开（见 <a href="benchmark01.html">01</a> / <a href="benchmark02.html">02</a> / <a href="benchmark03.html">03</a> 详细报告）。</p>
 
   <div class="keypoint">
     <div class="kp-title">核心结论</div>
     <ol style="margin:4px 0;padding-left:22px">
-      <li><strong>能力差距显著</strong>：加权均分 deepseek 96.3、opus 94.7、kimi 92.5、MiMo 83.7、磐石100 30.9。磐石在三项任务中均垫底，MiMo 居中。</li>
+      <li><strong>能力差距显著</strong>：加权均分 deepseek 97.0、kimi 92.5、opus 91.5、MiMo 83.8、磐石100 25.8。磐石在三项任务中均垫底，MiMo 明显落后于前三。</li>
       <li><strong>系统性失败</strong>：磐石100 在 01 数学推理中 3/6 题空输出（推理词元耗尽），02 代码调试仅 0.4/10（turns=1，伪工具调用），03 引用核查 0/10（turns=1，从未实际搜索）。失败模式一致，非偶然（详见 §5.4）。</li>
-      <li><strong>能力断档</strong>：磐石上下文仅 32k 词元，商业模型 1024k 词元，相差 30 倍。凡涉及 agent 工具调用、多轮反馈迭代、长文档分析的任务，磐石均不可用。</li>
+      <li><strong>能力断档</strong>：磐石上下文仅 32k 词元，商业模型 1024k 词元，相差 32 倍。凡涉及 agent 工具调用、多轮反馈迭代、长文档分析的任务，磐石均不可用。</li>
     </ol>
   </div>
 </section>
@@ -327,13 +327,13 @@ footer a{color:var(--primary-light)}
       <tr>
         <td class="l">02 · 代码调试</td>
         <td>含 5 处 Bug 的量子谐振子仿真项目<br>需在沙盒中定位修复全部 Bug 并通过物理验证</td>
-        <td>5 处 Bug 修复 (6 分) + 4 项物理判据 (4 分) = 10 分</td>
+        <td>每 Bug 修复+findings 描述 1.5 × 5 = 7.5 · 无 warning/error 1.0 · 4 项物理判据各 0.375 = 1.5 · 满分 10</td>
         <td>每模型 1 次 agent 运行</td>
       </tr>
       <tr>
         <td class="l">03 · 引用核查</td>
         <td>LaTeX 论文含 23 条引用（8 处注入错误）<br>需作为审稿人逐条检索验证真实性与一致性</td>
-        <td>TP 命中 (每条正确识别 1.25 分 × 8 = 10 分) · 假阳性每条 −0.5 分</td>
+        <td>TP 识别 0.625 × 8 = 5 · 正确分类 0.625 × 8 = 5 · 假阳性每条 −0.5 · 下限 0</td>
         <td>每模型 1 次 agent 运行</td>
       </tr>
     </tbody>
@@ -352,7 +352,7 @@ footer a{color:var(--primary-light)}
   <p>根据 Hugging Face 官方模型卡，<strong>S1-Base-671B 训练自 DeepSeek-R1-671B</strong>，S1-Base-8B 与 S1-Base-32B 分别训练自 Qwen3-8B 与 Qwen3-32B。微调使用了 1.7 亿篇科学论文与数百万条高质量科学推理数据。<strong>所有版本上下文长度统一为 32k 词元</strong>。模型以 Apache 2.0 协议开源。</p>
 
   <h3>3.2 DeepSeek V4 Pro（深度求索）</h3>
-  <p><strong>DeepSeek V4 Pro</strong> 由杭州深度求索公司研发，2026 年发布。采用异构混合专家（MoE）架构，<strong>总参数 1.6 万亿</strong>，预训练数据 32 万亿词元。支持三档推理模式。<strong>上下文长度 1024k 词元</strong>，最大单次输出 38.4 万词元。API 国内可直接调用，标价：输入 ¥3 / 百万词元，输出 ¥6 / 百万词元。</p>
+  <p><strong>DeepSeek V4 Pro</strong> 由杭州深度求索公司研发，2026 年发布。采用异构混合专家（MoE）架构，<strong>总参数 1.6 万亿</strong>，预训练数据 33 万亿词元。支持三档推理模式。<strong>上下文长度 1024k 词元</strong>，最大单次输出 38.4 万词元。API 国内可直接调用，标价：输入 ¥3 / 百万词元，输出 ¥6 / 百万词元。</p>
 
   <h3>3.3 Claude Opus 4.7（Anthropic）</h3>
   <p><strong>Claude Opus 4.7</strong> 由美国 Anthropic 公司研发，2026 年发布，是国际公认在编程、长文档分析、复杂推理等任务上的第一梯队模型。<strong>上下文长度 1024k 词元</strong>，最大单次输出 12.8 万词元。API 仅以美元计价，折合人民币输入约 ¥36 / 百万词元，输出约 ¥180 / 百万词元。</p>
@@ -389,7 +389,7 @@ footer a{color:var(--primary-light)}
         <td class="l">上下文长度</td><td class="bad"><strong>32k 词元</strong></td><td class="ok"><strong>1024k 词元</strong></td><td class="ok"><strong>1024k 词元</strong></td><td class="ok"><strong>1024k 词元</strong></td><td class="warn"><strong>262k 词元</strong></td>
       </tr>
       <tr>
-        <td class="l">训练数据量</td><td>微调 1.7 亿论文</td><td>预训练 32T 词元</td><td>未公开（业界估计同量级）</td><td>未公开</td><td>未公开</td>
+        <td class="l">训练数据量</td><td>微调 1.7 亿论文</td><td>预训练 33T 词元</td><td>未公开（业界估计同量级）</td><td>未公开</td><td>未公开</td>
       </tr>
 
 
@@ -406,8 +406,8 @@ footer a{color:var(--primary-light)}
     <div class="kp-title">关键事实</div>
     <ul>
       <li>磐石 100 最强版本（671B）基于 <strong>DeepSeek-R1</strong>——已被原厂商迭代至 V4 Pro，参数、上下文、效率全面更新换代。</li>
-      <li>磐石上下文 32k 词元，Kimi K2.6 262k 词元，DeepSeek V4 Pro、Claude Opus 4.7 与 MiMo V2.5 Pro 均为 <strong>1024k 词元</strong>——商业模型是磐石的 <strong>8~30 倍</strong>。</li>
-      <li>评分排名：deepseek (96.3) > opus (94.7) > kimi (92.5) > MiMo (83.7) > 磐石100 (30.9)。磐石在所有涉及 agent 工作流的任务上均无法运行。</li>
+      <li>磐石上下文 32k 词元，Kimi K2.6 262k 词元，DeepSeek V4 Pro、Claude Opus 4.7 与 MiMo V2.5 Pro 均为 <strong>1024k 词元</strong>——商业模型是磐石的 <strong>8~32 倍</strong>。</li>
+      <li>评分排名：deepseek (97.0) > kimi (92.5) > opus (91.5) > MiMo (83.8) > 磐石100 (25.8)。磐石在所有涉及 agent 工作流的任务上均无法运行。</li>
     </ul>
   </div>
 </section>
@@ -585,21 +585,21 @@ footer a{color:var(--primary-light)}
         <td class="ok">60 / 60</td>
         <td class="ok">10.0 / 10</td>
         <td class="warn">5.75 / 10</td>
-        <td class="total" style="color:var(--ok)">94.7</td>
+        <td class="total" style="color:var(--ok)">91.5</td>
       </tr>
       <tr>
         <td class="l">deepseek <span class="sub">deepseek-v4-pro[1m] · DS 官方</span></td>
         <td class="ok">60 / 60</td>
         <td class="ok">10.0 / 10</td>
         <td class="ok">8.5 / 10</td>
-        <td class="total" style="color:var(--ok)">96.3</td>
+        <td class="total" style="color:var(--ok)">97.0</td>
       </tr>
       <tr>
         <td class="l">mimo <span class="sub">mimo-v2.5-pro · Xiaomi Token Plan</span></td>
         <td class="warn">50 / 60</td>
         <td class="ok">10.0 / 10</td>
         <td class="warn">6.9 / 10</td>
-        <td class="total" style="color:var(--warn)">83.7</td>
+        <td class="total" style="color:var(--warn)">83.8</td>
       </tr>
       <tr>
         <td class="l">kimi <span class="sub">kimi-k2.6 · Moonshot API</span></td>
@@ -613,7 +613,7 @@ footer a{color:var(--primary-light)}
         <td class="warn">25 / 60</td>
         <td class="bad">0.4 / 10</td>
         <td class="bad">0.0 / 10</td>
-        <td class="total" style="color:var(--bad)">30.9</td>
+        <td class="total" style="color:var(--bad)">25.8</td>
       </tr>
     </tbody>
   </table>
@@ -902,7 +902,7 @@ footer a{color:var(--primary-light)}
 </section>
 
 <footer>
-  报告生成于 2026-05-10 · 基于 3 项 Benchmark 共 20 次独立模型调用 · 原始输出与评分标准均已开源<br>
+  报告生成于 2026-05-10 · 基于 3 项 Benchmark · 每模型 20 次独立调用（5 模型合计 100 次） · 原始输出与评分标准均已开源<br>
   <a href="benchmark01.html">benchmark01.html</a> ·
   <a href="benchmark02.html">benchmark02.html</a> ·
   <a href="benchmark03.html">benchmark03.html</a>
