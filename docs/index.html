@@ -43,8 +43,9 @@ a:hover{text-decoration:underline}
 
 /* nav */
 nav.top{
-  position:sticky;top:0;z-index:50;
+  position:-webkit-sticky;position:sticky;top:0;z-index:50;
   background:rgba(255,255,255,0.96);backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);padding:10px 20px;
 }
 nav.top .inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
@@ -55,6 +56,9 @@ nav.top a.anchor:hover{background:var(--soft);color:var(--primary);text-decorati
 nav.top .gh-link{margin-left:auto;display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;color:var(--muted);font-size:13px;font-weight:500;transition:all .2s}
 nav.top .gh-link:hover{background:var(--soft);color:var(--primary);text-decoration:none}
 nav.top .gh-link svg{width:18px;height:18px}
+
+nav.top{transition:transform .25s ease}
+nav.top.hidden{transform:translateY(-100%)}
 
 /* hero */
 .hero{
@@ -199,14 +203,87 @@ footer{
 }
 footer a{color:var(--primary-light)}
 
+/* table horizontal scroll */
+.table-wrap{margin-bottom:16px}
+.table-wrap table.data{margin-bottom:0}
+
+/* card-view for wide tables on mobile */
+@media (max-width: 600px){
+  .table-wrap{overflow-x:visible}
+  table.card-view,
+  table.card-view thead,
+  table.card-view tbody,
+  table.card-view th,
+  table.card-view td,
+  table.card-view tr{display:block}
+  table.card-view thead tr{position:absolute;top:-9999px;left:-9999px}
+  table.card-view tbody tr{
+    border:1px solid var(--border);border-radius:8px;margin-bottom:14px;
+    background:var(--card);overflow:hidden;
+  }
+  table.card-view td{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 14px;border-bottom:1px solid var(--soft);text-align:right!important;
+  }
+  table.card-view td:last-child{border-bottom:none}
+  table.card-view td.l{
+    background:var(--primary-bg);font-weight:700;justify-content:flex-start;
+    text-align:left!important;font-size:14px;color:var(--primary);
+  }
+  table.card-view td.l::before{display:none}
+  table.card-view td:not(.l)::before{
+    content:attr(data-label);font-weight:600;color:var(--primary);
+    text-align:left;margin-right:12px;flex-shrink:0;font-size:12px;white-space:nowrap;
+  }
+  table.card-view td.ok{color:var(--ok);font-weight:600}
+  table.card-view td.bad{color:var(--bad);font-weight:600}
+  table.card-view td.warn{color:var(--warn);font-weight:600}
+  table.card-view td.total{background:var(--soft);font-weight:700;font-size:15px}
+  table.card-view tr.hl{background:#FDF6F5}
+  .table-wrap table.card-view{min-width:unset}
+}
+
 /* responsive */
 @media (max-width: 768px){
   .hero h1{font-size:24px}
   section h2{font-size:20px}
   .cards{grid-template-columns:1fr}
-  table.data{font-size:12px}
-  table.data th, table.data td{padding:6px 8px}
   nav.top .gh-link span{display:none}
+  nav.top{
+    background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none;
+  }
+  nav.top .links{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  nav.top .inner{gap:12px}
+  section{padding:28px 16px}
+  .hero{padding:36px 16px 24px}
+  /* compact tables — no scrolling, text wraps to shrink columns */
+  table.data:not(.card-view){font-size:10px;table-layout:fixed;width:100%}
+  table.data:not(.card-view) th, table.data:not(.card-view) td{padding:3px 5px;word-break:break-all;overflow-wrap:break-word}
+}
+
+@media (max-width: 480px){
+  .hero h1{font-size:20px}
+  .hero .subtitle{font-size:14px}
+  .hero .date{font-size:12px}
+  section h2{font-size:18px}
+  section h3{font-size:15px}
+  section h4{font-size:14px}
+  section{padding:24px 12px}
+  .hero{padding:28px 12px 20px}
+  table.data:not(.card-view){font-size:9px;table-layout:fixed;width:100%}
+  table.data:not(.card-view) th, table.data:not(.card-view) td{padding:2px 3px;word-break:break-all;overflow-wrap:break-word}
+  .note{font-size:12px;max-height:180px;overflow-y:auto}
+  .keypoint{padding:12px 14px;font-size:13px}
+  .keypoint ul, .keypoint ol{padding-left:18px}
+  nav.top{padding:8px 12px}
+  nav.top .brand{font-size:12px}
+  nav.top a.anchor{font-size:11px;padding:3px 7px}
+  .cards{grid-template-columns:1fr}
+  .card-body{font-size:13px}
+  .card-head{padding:10px 14px}
+  .card-body{padding:12px 14px}
+  footer{font-size:12px;padding:16px}
+  ol, ul{padding-left:18px}
 }
 </style>
 </head>
@@ -242,11 +319,11 @@ footer a{color:var(--primary-light)}
 <section id="summary" class="no-border">
   <h2>§1 摘要</h2>
 
-  <p>近一年，国际顶级商业大模型（<strong>Claude Opus 4.7</strong>、<strong>DeepSeek V4 Pro</strong>）已成为科研人员日常工作的核心生产力工具，被广泛用于文献综述、论文写作、代码调试、数据分析等场景。</p>
+  <p>近一年，<strong>前沿商业大模型</strong>已成为科研人员日常工作的核心生产力工具，被广泛用于文献综述、论文写作、代码调试、数据分析等场景。</p>
 
   <p>中科院体系内部署的<strong>磐石 100</strong>模型，基于 DeepSeek-R1 (671B 版本) 与 Qwen3 (8B/32B 版本) 微调，上下文长度限制为 <strong>32k 词元</strong>。同期商业模型的上下文长度已达 <strong>1024k 词元</strong>，相差约 32 倍。</p>
 
-  <p>本报告通过 <strong>3 项 Benchmark 实测</strong>（数学推理、代码调试、引用核查），客观对比<strong>五者</strong>实际表现。每个模型独立运行 20 次（数学 18 次 + 代码 1 次 + 引用 1 次），所有运行均可复现——原始输出、评分标准与验证脚本均已公开（见 <a href="benchmark01.html">01</a> / <a href="benchmark02.html">02</a> / <a href="benchmark03.html">03</a> 详细报告）。</p>
+  <p>本报告通过 <strong>3 项 Benchmark 实测</strong>（数学推理、代码调试、引用核查），客观对比<strong>五家大模型</strong>（Claude Opus 4.7、DeepSeek V4 Pro、MiMo V2.5 Pro、Kimi K2.6、磐石 100）实际表现。每个模型独立运行 20 次（数学 18 次 + 代码 1 次 + 引用 1 次），所有运行均可复现——原始输出、评分标准与验证脚本均已公开（见 <a href="benchmark01.html">01</a> / <a href="benchmark02.html">02</a> / <a href="benchmark03.html">03</a> 详细报告）。</p>
 
   <div class="keypoint">
     <div class="kp-title">核心结论</div>
@@ -265,7 +342,7 @@ footer a{color:var(--primary-light)}
   <h3>2.1 测试工具与接入方式</h3>
   <p>三项 Benchmark 均通过 <strong>Claude Code (CC)</strong> 命令行工具 (<code>claude -p</code>) 与模型交互。CC 按 Anthropic tool-use 协议管理 agent loop，提供 Read / Edit / Bash / WebSearch 等工具。各模型的接入方式如下：</p>
 
-  <table class="data">
+  <div class="table-wrap"><table class="data">
     <thead>
       <tr>
         <th style="text-align:left">模型</th>
@@ -306,14 +383,14 @@ footer a{color:var(--primary-light)}
         <td>CC agent loop<br><span style="font-size:12px;color:var(--muted)">沙盒隔离 · 工具描述已注入但模型未执行</span></td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 
   <div class="note">
     <p><strong>CC 接入方式：</strong>opus 使用 <code>claude -p --model claude-opus-4-7</code> 直接调用 Anthropic 官方 OAuth Max 订阅；deepseek 通过设置环境变量 <code>ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic</code> 将 CC 底层端点指向 DeepSeek 的 Anthropic 兼容 API；MiMo 同理指向 Xiaomi 端点 (<code>mimo-v2.5-pro</code>)；kimi 同理指向 Moonshot 端点 (<code>kimi-k2.6</code>)；磐石100 同理指向 cstcloud 端点 (<code>S1-Base-Ultra</code>)。所有调用参数、原始输出与运行脚本均保存在本项目仓库中，可重跑验证。</p>
   </div>
 
   <h3>2.2 任务设计与评分规则</h3>
-  <table class="data compact">
+  <div class="table-wrap"><table class="data compact">
     <thead>
       <tr><th style="text-align:left">Benchmark</th><th>任务</th><th>评分规则</th><th>采样</th></tr>
     </thead>
@@ -337,7 +414,7 @@ footer a{color:var(--primary-light)}
         <td>每模型 1 次 agent 运行</td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h3>2.3 可复现性</h3>
   <p>所有评分基准公开在 <code>solutions/</code> 目录下，包含正确答案和自动验证脚本。Benchmark 运行脚本 <code>run_benchmark.py</code>、<code>run_codedebug.py</code>、<code>run_citation.py</code> 可在相同环境下重跑验证。原始输出保存在 <code>opus-answer/</code>、<code>deepseek-answer/</code>、<code>mimo-answer/</code>、<code>kimi-answer/</code>、<code>panshi100-answer/</code> 目录。</p>
@@ -363,8 +440,8 @@ footer a{color:var(--primary-light)}
   <h3>3.5 Kimi K2.6（月之暗面 / Moonshot AI）</h3>
   <p><strong>Kimi K2.6</strong> 由北京月之暗面科技有限公司（Moonshot AI）研发，2026 年发布。为多模态大语言模型（支持文本与视觉输入），<strong>上下文长度 262k 词元</strong>，支持工具调用与 agent 工作流。通过 Moonshot Anthropic 兼容端点（api.moonshot.cn/anthropic）提供服务，国内可直接访问。本次实测通过 Anthropic 兼容端点接入 Claude Code，完成全部三项 Benchmark。</p>
 
-  <h3>3.6 关键参数五方对比</h3>
-  <table class="data compact">
+<h3>3.6 关键参数五方对比</h3>
+   <div class="table-wrap"><table class="data compact card-view">
     <thead>
       <tr>
         <th style="text-align:left;width:16%">维度</th>
@@ -377,30 +454,30 @@ footer a{color:var(--primary-light)}
     </thead>
     <tbody>
       <tr>
-        <td class="l">研发方</td><td>中科院自动化所等</td><td>深度求索（杭州）</td><td>Anthropic（美国）</td><td>小米（北京）</td><td>月之暗面（北京）</td>
+        <td class="l">研发方</td><td data-label="磐石100">中科院自动化所等</td><td data-label="DeepSeek">深度求索（杭州）</td><td data-label="Claude">Anthropic（美国）</td><td data-label="MiMo">小米（北京）</td><td data-label="Kimi">月之暗面（北京）</td>
       </tr>
       <tr>
-        <td class="l">底座来源</td><td>DeepSeek-R1 / Qwen3 微调</td><td>自研 V4 系列</td><td>自研 Opus 4 系列</td><td>自研 MiMo 系列</td><td>自研 Kimi 系列</td>
+        <td class="l">底座来源</td><td data-label="磐石100">DeepSeek-R1 / Qwen3 微调</td><td data-label="DeepSeek">自研 V4 系列</td><td data-label="Claude">自研 Opus 4 系列</td><td data-label="MiMo">自研 MiMo 系列</td><td data-label="Kimi">自研 Kimi 系列</td>
       </tr>
       <tr>
-        <td class="l">参数规模</td><td>671B（总参数）</td><td>1.6T 总 / 49B 活跃</td><td>未公开</td><td>未公开</td><td>未公开</td>
+        <td class="l">参数规模</td><td data-label="磐石100">671B（总参数）</td><td data-label="DeepSeek">1.6T 总 / 49B 活跃</td><td data-label="Claude">未公开</td><td data-label="MiMo">未公开</td><td data-label="Kimi">未公开</td>
       </tr>
       <tr>
-        <td class="l">上下文长度</td><td class="bad"><strong>32k 词元</strong></td><td class="ok"><strong>1024k 词元</strong></td><td class="ok"><strong>1024k 词元</strong></td><td class="ok"><strong>1024k 词元</strong></td><td class="warn"><strong>262k 词元</strong></td>
+        <td class="l">上下文长度</td><td class="bad" data-label="磐石100"><strong>32k 词元</strong></td><td class="ok" data-label="DeepSeek"><strong>1024k 词元</strong></td><td class="ok" data-label="Claude"><strong>1024k 词元</strong></td><td class="ok" data-label="MiMo"><strong>1024k 词元</strong></td><td class="warn" data-label="Kimi"><strong>262k 词元</strong></td>
       </tr>
       <tr>
-        <td class="l">训练数据量</td><td>微调 1.7 亿论文</td><td>预训练 33T 词元</td><td>未公开（业界估计同量级）</td><td>未公开</td><td>未公开</td>
+        <td class="l">训练数据量</td><td data-label="磐石100">微调 1.7 亿论文</td><td data-label="DeepSeek">预训练 33T 词元</td><td data-label="Claude">未公开（业界估计同量级）</td><td data-label="MiMo">未公开</td><td data-label="Kimi">未公开</td>
       </tr>
 
 
       <tr>
-        <td class="l">参考单价<br><span style="font-weight:400;font-size:11px">输入/输出 ¥/M 词元</span></td><td>—</td><td>¥3 / ¥6</td><td>¥36 / ¥180</td><td>订阅制</td><td>¥6.5 / ¥27</td>
+        <td class="l">参考单价<br><span style="font-weight:400;font-size:11px">输入/输出 ¥/M 词元</span></td><td data-label="磐石100">—</td><td data-label="DeepSeek">¥3 / ¥6</td><td data-label="Claude">¥36 / ¥180</td><td data-label="MiMo">订阅制</td><td data-label="Kimi">¥6.5 / ¥27</td>
       </tr>
       <tr>
-        <td class="l">适用场景</td><td>短文本简单推理</td><td>通用科研主力</td><td>高难度复杂任务</td><td>通用科研 · agent 工作流</td><td>通用科研 · agent 工作流</td>
+        <td class="l">适用场景</td><td data-label="磐石100">短文本简单推理</td><td data-label="DeepSeek">通用科研主力</td><td data-label="Claude">高难度复杂任务</td><td data-label="MiMo">通用科研 · agent 工作流</td><td data-label="Kimi">通用科研 · agent 工作流</td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 
   <div class="keypoint">
     <div class="kp-title">关键事实</div>
@@ -424,41 +501,41 @@ footer a{color:var(--primary-light)}
 
   <div class="keypoint">
     <div class="kp-title">纯聊天 vs Agent Loop：词元消耗对比（以 Benchmark 03 引用核查为例）</div>
-    <table class="data compact" style="margin-top:8px">
+    <div class="table-wrap"><table class="data compact card-view" style="margin-top:8px">
       <thead>
         <tr><th>工作模式</th><th>每轮消耗</th><th>32k 可跑轮次</th><th>262k 可跑轮次</th><th>1024k 可跑轮次</th></tr>
       </thead>
       <tbody>
-        <tr><td class="l">纯聊天（一问一答）</td><td>1–3k</td><td class="ok">~20 轮</td><td class="ok">~150 轮</td><td class="ok">~500 轮</td></tr>
-        <tr><td class="l">Agent 读文件 + 思考</td><td>3–5k</td><td class="warn">~8 轮</td><td class="ok">~60 轮</td><td class="ok">~250 轮</td></tr>
-        <tr><td class="l">Agent + 工具调用 (WebSearch/Bash/Python)</td><td>8–25k</td><td class="bad">1–3 轮</td><td class="warn">~15 轮</td><td class="ok">~60 轮</td></tr>
+        <tr><td class="l">纯聊天（一问一答）</td><td data-label="每轮消耗">1–3k</td><td class="ok" data-label="32k可跑">~20 轮</td><td class="ok" data-label="262k可跑">~150 轮</td><td class="ok" data-label="1024k可跑">~500 轮</td></tr>
+        <tr><td class="l">Agent 读文件 + 思考</td><td data-label="每轮消耗">3–5k</td><td class="warn" data-label="32k可跑">~8 轮</td><td class="ok" data-label="262k可跑">~60 轮</td><td class="ok" data-label="1024k可跑">~250 轮</td></tr>
+        <tr><td class="l">Agent + 工具调用 (WebSearch/Bash/Python)</td><td data-label="每轮消耗">8–25k</td><td class="bad" data-label="32k可跑">1–3 轮</td><td class="warn" data-label="262k可跑">~15 轮</td><td class="ok" data-label="1024k可跑">~60 轮</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <p>纯聊天场景下 32k 词元绰绰有余——一次对话几十轮都不成问题。但一旦进入 agent 模式——读文件、分析、调用 Crossref API、阅读搜索结果、再分析——每轮轻松消耗 15–25k 词元。<strong>32k 窗口在 agent 模式下只能支撑 1–3 轮，根本跑不完一个完整的引用核查或 Bug 修复流程。</strong></p>
 
   <h3>4.2 实验证据：turns 数量说明一切</h3>
 
-  <p>在完全相同的 prompt 和工具描述下，同一个 harness（<code>claude -p</code>）中五个模型的表现截然不同：</p>
+  <p>在完全相同的 prompt 和工具描述下，同一套测试框架（Claude Code，<code>claude -p</code>）中五个模型的表现截然不同：</p>
 
-  <table class="data compact">
-    <thead>
-      <tr><th style="text-align:left">模型</th><th>上下文</th><th>02 代码调试 turns</th><th>03 引用核查 turns</th><th>是否完成 agent 工作流</th></tr>
-    </thead>
-    <tbody>
-      <tr><td class="l">opus</td><td>1024k 词元</td><td class="ok">20</td><td class="ok">64</td><td class="ok">✓ 完整</td></tr>
-      <tr><td class="l">deepseek</td><td>1024k 词元</td><td class="ok">21</td><td class="ok">65</td><td class="ok">✓ 完整</td></tr>
-      <tr><td class="l">MiMo</td><td>1024k 词元</td><td class="ok">~20</td><td class="ok">~25</td><td class="ok">✓ 完整</td></tr>
-      <tr><td class="l">kimi</td><td>262k 词元</td><td class="ok">19</td><td class="ok">63</td><td class="ok">✓ 完整</td></tr>
-      <tr class="hl"><td class="l">磐石100</td><td>32k 词元</td><td class="bad">1</td><td class="bad">1</td><td class="bad">✗ 首轮即止</td></tr>
-    </tbody>
-  </table>
+    <div class="table-wrap"><table class="data compact">
+      <thead>
+        <tr><th style="text-align:left">模型</th><th>上下文</th><th>02 代码调试 turns</th><th>03 引用核查 turns</th><th>是否完成 agent 工作流</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="l">opus</td><td>1024k 词元</td><td class="ok">20</td><td class="ok">64</td><td class="ok">✓ 完整</td></tr>
+        <tr><td class="l">deepseek</td><td>1024k 词元</td><td class="ok">21</td><td class="ok">65</td><td class="ok">✓ 完整</td></tr>
+        <tr><td class="l">MiMo</td><td>1024k 词元</td><td class="ok">~20</td><td class="ok">~25</td><td class="ok">✓ 完整</td></tr>
+        <tr><td class="l">kimi</td><td>262k 词元</td><td class="ok">19</td><td class="ok">63</td><td class="ok">✓ 完整</td></tr>
+        <tr class="hl"><td class="l">磐石100</td><td>32k 词元</td><td class="bad">1</td><td class="bad">1</td><td class="bad">✗ 首轮即止</td></tr>
+      </tbody>
+    </table></div>
 
   <p>磐石 100 在 02 和 03 中均为 <strong>turns=1</strong>——不是它"不想干活"，而是 32k 上下文里塞进了 system prompt + 题目 + 工具协议描述之后，已经耗尽可用空间，模型只能立刻 <code>end_turn</code>。这也解释了为什么磐石在 01 纯数学推理（单轮、无工具调用）中部分题目仍能得出正确答案——<strong>不是"推理能力"有断档，是"上下文容量"让 agent 模式完全无法启动。</strong></p>
 
-  <h3>4.3 对实际科研任务的影响</h3>
-  <table class="data compact">
+<h3>4.3 对实际科研任务的影响</h3>
+   <div class="table-wrap"><table class="data compact">
     <thead>
       <tr>
         <th style="text-align:left">科研任务</th>
@@ -479,7 +556,7 @@ footer a{color:var(--primary-light)}
       <tr><td class="l">三篇论文交叉对比 + 综述</td><td>Agent + 搜索，50–150 轮</td><td class="bad">✗</td><td class="warn">临界</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
       <tr><td class="l">大规模文献调研 / 代码库重构</td><td>Agent 深度循环，200+ 轮</td><td class="bad">✗</td><td class="bad">✗</td><td class="warn">临界</td><td class="warn">临界</td><td class="warn">临界</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <div class="keypoint">
     <div class="kp-title">本节结论</div>
@@ -496,54 +573,54 @@ footer a{color:var(--primary-light)}
 
   <p>上下文窗口决定了"能不能跑"，而<strong>速度和稳定性决定了"跑起来之后好不好用"</strong>。在 agent 工作流中，速度的差异是乘数级的——每轮慢几秒，60 轮之后就是几十分钟的差距。</p>
 
-  <table class="data compact">
-    <thead>
-      <tr>
-        <th style="text-align:left">模型</th>
-        <th>02 代码 Debug</th>
-        <th>03 引用核查</th>
-        <th>单轮均速 (03)</th>
-        <th>稳定性问题</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="l">opus</td>
-        <td class="ok">130.8s · 20 turns</td>
-        <td class="ok">610.9s · 64 turns</td>
-        <td class="ok">~9.5s/turn</td>
-        <td class="ok">0 次</td>
-      </tr>
-      <tr>
-        <td class="l">deepseek</td>
-        <td class="warn">464.5s · 21 turns</td>
-        <td class="warn">2495.0s · 65 turns</td>
-        <td class="warn">~38.4s/turn</td>
-        <td class="ok">0 次</td>
-      </tr>
-      <tr>
-        <td class="l">mimo</td>
-        <td class="warn">327.7s · ~20 turns</td>
-        <td class="ok">848.8s · ~25 turns</td>
-        <td class="warn">~34.0s/turn</td>
-        <td class="ok">0 次</td>
-      </tr>
-      <tr>
-        <td class="l">kimi</td>
-        <td class="ok">119.9s · 19 turns</td>
-        <td class="warn">2363.5s · 63 turns</td>
-        <td class="warn">~37.5s/turn</td>
-        <td class="warn">2 次</td>
-      </tr>
-      <tr class="hl">
-        <td class="l">磐石100</td>
-        <td class="bad">225.8s · 1 turn</td>
-        <td class="bad">59.2s · 1 turn</td>
-        <td class="bad">—</td>
-        <td class="bad">系统性</td>
-      </tr>
-    </tbody>
-  </table>
+   <div class="table-wrap"><table class="data compact">
+     <thead>
+       <tr>
+         <th style="text-align:left">模型</th>
+         <th>02 代码 Debug</th>
+         <th>03 引用核查</th>
+         <th>单轮均速 (03)</th>
+         <th>稳定性问题</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr>
+         <td class="l">opus</td>
+         <td class="ok">130.8s · 20 turns</td>
+         <td class="ok">610.9s · 64 turns</td>
+         <td class="ok">~9.5s/turn</td>
+         <td class="ok">0 次</td>
+       </tr>
+       <tr>
+         <td class="l">deepseek</td>
+         <td class="warn">464.5s · 21 turns</td>
+         <td class="warn">2495.0s · 65 turns</td>
+         <td class="warn">~38.4s/turn</td>
+         <td class="ok">0 次</td>
+       </tr>
+       <tr>
+         <td class="l">mimo</td>
+         <td class="warn">327.7s · ~20 turns</td>
+         <td class="ok">848.8s · ~25 turns</td>
+         <td class="warn">~34.0s/turn</td>
+         <td class="ok">0 次</td>
+       </tr>
+       <tr>
+         <td class="l">kimi</td>
+         <td class="ok">119.9s · 19 turns</td>
+         <td class="warn">2363.5s · 63 turns</td>
+         <td class="warn">~37.5s/turn</td>
+         <td class="warn">2 次</td>
+       </tr>
+       <tr class="hl">
+         <td class="l">磐石100</td>
+         <td class="bad">225.8s · 1 turn</td>
+         <td class="bad">59.2s · 1 turn</td>
+         <td class="bad">—</td>
+         <td class="bad">系统性</td>
+       </tr>
+     </tbody>
+   </table></div>
 
   <p>关键发现：</p>
   <ol>
@@ -568,8 +645,8 @@ footer a{color:var(--primary-light)}
 
   <p>本节通过 <strong>3 项 Benchmark</strong> 实测对比五个模型在科研任务上的表现。每项按统一标准打分（满分 10 分）。<strong>所有数据均来自真实运行</strong>，原始输出可在 <a href="benchmark01.html">01</a> / <a href="benchmark02.html">02</a> / <a href="benchmark03.html">03</a> 详细报告中查看。</p>
 
-  <h3>5.0 五模型总成绩单</h3>
-  <table class="data">
+<h3>5.0 五模型总成绩单</h3>
+   <div class="table-wrap"><table class="data">
     <thead>
       <tr>
         <th style="text-align:left">模型</th>
@@ -616,10 +693,10 @@ footer a{color:var(--primary-light)}
         <td class="total" style="color:var(--bad)">25.8</td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 
   <p class="note">
-    <strong>加权说明：</strong>01 占 60% 权重（6 题 × 10 分），02、03 各占 20%（各 10 分）。
+    <strong>加权说明：</strong>01 占 60% 权重（6 题 × 10 分），02、03 各占 20%（各 10 分）。<strong>注：</strong>01 数学每题独立运行 3 次（共 18 跑），下文「N 跑」指 3 次中的 N 次。<br>
     opus 在 03 中命中 6/8 错误（漏检 2 处位置错误），分类 4/8 准确（E5/E6 领域伪造未细分），1 条假阳性，得 5.75/10。
     MiMo 在 01 中 Q5（极限题）三跑全错（0 分），Q2/Q6 各有一跑错误；03 中漏检 2 处位置错误，Reynolds2019 分类有偏差，得 6.9/10。
     kimi 在 01 中 6 题均 10/10（best-of-3），有两跑失败（Q1 run3 reasoning截断空输出、Q4 run3 超时）但不影响得分。02 一跑 10/10。03 命中 6/8（漏检 E7/E8 位置错误），分类 4/8，0 假阳性，得 6.25/10。加权均分 92.5。
@@ -633,38 +710,38 @@ footer a{color:var(--primary-light)}
   <p><strong>题目范围：</strong>代数不等式 · 解析几何 · 数论 · 组合计数 · 微积分极限 · 条件概率。难度相当于清北强基笔试到 Putnam 中段。</p>
   <p><strong>评分规则：</strong>每题满分 10 分。最终答案错误即 0 分；答案正确后再加推导思路分。每模型每题独立采样 3 次。</p>
 
-  <table class="data">
+  <div class="table-wrap"><table class="data card-view">
     <thead>
       <tr><th style="text-align:left">模型</th><th>题1 代数</th><th>题2 几何</th><th>题3 数论</th><th>题4 组合</th><th>题5 极限</th><th>题6 概率</th><th>合计 / 60</th></tr>
     </thead>
     <tbody>
       <tr>
         <td class="l">opus</td>
-        <td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td>
-        <td class="total" style="color:var(--ok)">60</td>
+        <td class="ok" data-label="题1代数">10</td><td class="ok" data-label="题2几何">10</td><td class="ok" data-label="题3数论">10</td><td class="ok" data-label="题4组合">10</td><td class="ok" data-label="题5极限">10</td><td class="ok" data-label="题6概率">10</td>
+        <td class="total" data-label="合计" style="color:var(--ok)">60</td>
       </tr>
       <tr>
         <td class="l">deepseek</td>
-        <td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td>
-        <td class="total" style="color:var(--ok)">60</td>
+        <td class="ok" data-label="题1代数">10</td><td class="ok" data-label="题2几何">10</td><td class="ok" data-label="题3数论">10</td><td class="ok" data-label="题4组合">10</td><td class="ok" data-label="题5极限">10</td><td class="ok" data-label="题6概率">10</td>
+        <td class="total" data-label="合计" style="color:var(--ok)">60</td>
       </tr>
       <tr>
         <td class="l">mimo</td>
-        <td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="bad">0</td><td class="ok">10</td>
-        <td class="total" style="color:var(--warn)">50</td>
+        <td class="ok" data-label="题1代数">10</td><td class="ok" data-label="题2几何">10</td><td class="ok" data-label="题3数论">10</td><td class="ok" data-label="题4组合">10</td><td class="bad" data-label="题5极限">0</td><td class="ok" data-label="题6概率">10</td>
+        <td class="total" data-label="合计" style="color:var(--warn)">50</td>
       </tr>
       <tr>
         <td class="l">kimi</td>
-        <td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td><td class="ok">10</td>
-        <td class="total" style="color:var(--ok)">60</td>
+        <td class="ok" data-label="题1代数">10</td><td class="ok" data-label="题2几何">10</td><td class="ok" data-label="题3数论">10</td><td class="ok" data-label="题4组合">10</td><td class="ok" data-label="题5极限">10</td><td class="ok" data-label="题6概率">10</td>
+        <td class="total" data-label="合计" style="color:var(--ok)">60</td>
       </tr>
       <tr class="hl">
         <td class="l">磐石100</td>
-        <td class="ok">10</td><td class="ok">10</td><td class="bad">0</td><td class="bad">0</td><td class="warn">5*</td><td class="bad">0</td>
-        <td class="total" style="color:var(--warn)">25</td>
+        <td class="ok" data-label="题1代数">10</td><td class="ok" data-label="题2几何">10</td><td class="bad" data-label="题3数论">0</td><td class="bad" data-label="题4组合">0</td><td class="warn" data-label="题5极限">5*</td><td class="bad" data-label="题6概率">0</td>
+        <td class="total" data-label="合计" style="color:var(--warn)">25</td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 
   <p class="note">
     <strong>磐石 100 失分分析：</strong>题 3、4、6 均为<strong>空输出</strong>——思考阶段消耗满 8192 completion tokens（<code>finish_reason=length</code>），正式回答 <code>content_len=0</code>。
@@ -721,20 +798,20 @@ footer a{color:var(--primary-light)}
 
   <p><strong>任务：</strong>给定一个含 5 处 Bug 的量子谐振子仿真项目，模型需在沙盒中阅读源码、定位修复全部 Bug、运行 <code>python main.py</code> 无 warning/error，并满足 4 项物理判据（能量、⟨x⟩、⟨p⟩、模长）。输出 <code>findings.md</code>。</p>
 
-  <table class="data">
-    <thead>
-      <tr>
-        <th style="text-align:left">模型</th><th>耗时 (s)</th><th>turns</th><th>5 处 Bug</th><th>4 项判据</th><th>无 warning</th><th>得分 / 10</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td class="l">opus</td><td>130.8</td><td>20</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
-      <tr><td class="l">deepseek</td><td>464.5</td><td>21</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
-      <tr><td class="l">mimo</td><td>327.7</td><td>~20</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
-      <tr><td class="l">kimi</td><td>119.9</td><td>19</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
-      <tr class="hl"><td class="l">磐石100</td><td>225.8</td><td class="bad">1</td><td class="bad">0 / 5</td><td class="bad">1 / 4</td><td class="bad">✗</td><td class="total" style="color:var(--bad)">0.4</td></tr>
-    </tbody>
-  </table>
+   <div class="table-wrap"><table class="data">
+     <thead>
+       <tr>
+         <th style="text-align:left">模型</th><th>耗时 (s)</th><th>turns</th><th>5 处 Bug</th><th>4 项判据</th><th>无 warning</th><th>得分 / 10</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr><td class="l">opus</td><td>130.8</td><td>20</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
+       <tr><td class="l">deepseek</td><td>464.5</td><td>21</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
+       <tr><td class="l">mimo</td><td>327.7</td><td>~20</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
+       <tr><td class="l">kimi</td><td>119.9</td><td>19</td><td class="ok">5 / 5</td><td class="ok">4 / 4</td><td class="ok">✓</td><td class="total" style="color:var(--ok)">10.0</td></tr>
+       <tr class="hl"><td class="l">磐石100</td><td>225.8</td><td class="bad">1</td><td class="bad">0 / 5</td><td class="bad">1 / 4</td><td class="bad">✗</td><td class="total" style="color:var(--bad)">0.4</td></tr>
+     </tbody>
+   </table></div>
 
   <p class="note">
     opus、deepseek、MiMo 与 kimi 的修复结果<strong>一致</strong>（verify 输出完全相同），均修对全部 5 处 Bug、4 项物理判据全部满足。
@@ -747,20 +824,20 @@ footer a{color:var(--primary-light)}
 
   <p><strong>任务：</strong>作为学术审稿人复核一篇 LaTeX 论文（N-queens 统计力学）的 23 条引用。其中 8 处为人为注入的错误（2 完全捏造 + 2 字段篡改 + 2 领域伪造 + 2 位置错误），剩余 15 条为真实引用。模型需使用 WebSearch / Crossref API 等逐条验证，输出 <code>findings.md</code>。</p>
 
-  <table class="data">
-    <thead>
-      <tr>
-        <th style="text-align:left">模型</th><th>耗时 (s)</th><th>turns</th><th>TP 命中 / 8</th><th>假阳性</th><th>得分 / 10</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td class="l">opus <span class="sub">claude-opus-4-7</span></td><td>610.9</td><td>64</td><td class="warn">6 / 8</td><td class="warn">1 条 (−0.5)</td><td class="total" style="color:var(--warn)">5.75</td></tr>
-      <tr><td class="l">deepseek <span class="sub">deepseek-v4-pro[1m]</span></td><td>2 495.0</td><td>65</td><td class="ok">8 / 8</td><td class="warn">3 条 (−1.5)</td><td class="total" style="color:var(--ok)">8.5</td></tr>
-      <tr><td class="l">mimo <span class="sub">mimo-v2.5-pro</span></td><td>848.8</td><td>~25</td><td class="warn">6 / 8</td><td class="ok">0 条</td><td class="total" style="color:var(--warn)">6.9</td></tr>
-      <tr><td class="l">kimi <span class="sub">kimi-k2.6</span></td><td>2 363.5</td><td>63</td><td class="warn">6 / 8</td><td class="ok">0 条</td><td class="total" style="color:var(--warn)">6.25</td></tr>
-      <tr class="hl"><td class="l">磐石100 <span class="sub">S1-Base-Ultra</span></td><td>59.2</td><td class="bad">1</td><td class="bad">0 / 8</td><td>—</td><td class="total" style="color:var(--bad)">0.0</td></tr>
-    </tbody>
-  </table>
+   <div class="table-wrap"><table class="data">
+     <thead>
+       <tr>
+         <th style="text-align:left">模型</th><th>耗时 (s)</th><th>turns</th><th>TP 命中 / 8</th><th>假阳性</th><th>得分 / 10</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr><td class="l">opus <span class="sub">claude-opus-4-7</span></td><td>610.9</td><td>64</td><td class="warn">6 / 8</td><td class="warn">1 条 (−0.5)</td><td class="total" style="color:var(--warn)">5.75</td></tr>
+       <tr><td class="l">deepseek <span class="sub">deepseek-v4-pro[1m]</span></td><td>2 495.0</td><td>65</td><td class="ok">8 / 8</td><td class="warn">3 条 (−1.5)</td><td class="total" style="color:var(--ok)">8.5</td></tr>
+       <tr><td class="l">mimo <span class="sub">mimo-v2.5-pro</span></td><td>848.8</td><td>~25</td><td class="warn">6 / 8</td><td class="ok">0 条</td><td class="total" style="color:var(--warn)">6.9</td></tr>
+       <tr><td class="l">kimi <span class="sub">kimi-k2.6</span></td><td>2 363.5</td><td>63</td><td class="warn">6 / 8</td><td class="ok">0 条</td><td class="total" style="color:var(--warn)">6.25</td></tr>
+       <tr class="hl"><td class="l">磐石100 <span class="sub">S1-Base-Ultra</span></td><td>59.2</td><td class="bad">1</td><td class="bad">0 / 8</td><td>—</td><td class="total" style="color:var(--bad)">0.0</td></tr>
+     </tbody>
+   </table></div>
 
   <p class="note">
     deepseek 全部 8 处错误命中（含 4 种类型全部分类正确），3 条假阳性扣 1.5 分，得 8.5/10。
@@ -776,7 +853,7 @@ footer a{color:var(--primary-light)}
 
   <div class="failure-callout">
     <h4>三项 Benchmark 中磐石 100 的共性失败模式</h4>
-    <table class="data compact" style="margin-top:8px">
+    <div class="table-wrap"><table class="data compact" style="margin-top:8px">
       <thead>
         <tr><th style="text-align:left">Benchmark</th><th>harness</th><th>turns</th><th>失败模式</th></tr>
       </thead>
@@ -794,7 +871,7 @@ footer a{color:var(--primary-light)}
           <td style="text-align:left;font-size:13px"><strong>同 02</strong>：模型在首轮输出执行计划 + 伪 <code>{"tool": "Read"}</code> 文本块，随即 <code>end_turn</code>。从未实际调用 Crossref / WebSearch / WebFetch。tasks.json 与 findings.md 均不存在。</td>
         </tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <h4>根因分析</h4>
@@ -817,54 +894,54 @@ footer a{color:var(--primary-light)}
 
   <p>稳定性直接影响实际可用性——一个能在 10 分钟内稳定跑完 60+ turns agent 任务的模型，与一个思考到一半空输出、或者偶尔超时挂掉的模型，对科研工作流的信任度截然不同。</p>
 
-  <table class="data compact">
-    <thead>
-      <tr>
-        <th style="text-align:left">模型</th>
-        <th>01 异常 / 总运行</th>
-        <th>02 Agent 状态</th>
-        <th>03 Agent 状态</th>
-        <th>故障模式</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="l">opus</td>
-        <td class="ok">0 / 18</td>
-        <td class="ok">✓ 正常 · 20 turns</td>
-        <td class="ok">✓ 正常 · 64 turns</td>
-        <td class="ok">无</td>
-      </tr>
-      <tr>
-        <td class="l">deepseek</td>
-        <td class="ok">0 / 18</td>
-        <td class="ok">✓ 正常 · 21 turns</td>
-        <td class="ok">✓ 正常 · 65 turns</td>
-        <td class="ok">无</td>
-      </tr>
-      <tr>
-        <td class="l">mimo</td>
-        <td class="ok">0 / 18*</td>
-        <td class="ok">✓ 正常 · ~20 turns</td>
-        <td class="ok">✓ 正常 · ~25 turns</td>
-        <td>Q5 三跑全错（非稳定性故障）</td>
-      </tr>
-      <tr>
-        <td class="l">kimi</td>
-        <td class="warn">2 / 18</td>
-        <td class="ok">✓ 正常 · 19 turns</td>
-        <td class="ok">✓ 正常 · 63 turns</td>
-        <td>1 次推理耗尽（空输出）+ 1 次超时（进程被杀）</td>
-      </tr>
-      <tr class="hl">
-        <td class="l">磐石100</td>
-        <td class="bad">12 / 18</td>
-        <td class="bad">✗ turns=1</td>
-        <td class="bad">✗ turns=1</td>
-        <td>系统性：9 次空输出 + 1 SSL + 1 HTTP 502 + 1 截断 + 2 次 agent 首轮放弃</td>
-      </tr>
-    </tbody>
-  </table>
+   <div class="table-wrap"><table class="data compact">
+     <thead>
+       <tr>
+         <th style="text-align:left">模型</th>
+         <th>01 异常 / 总运行</th>
+         <th>02 Agent 状态</th>
+         <th>03 Agent 状态</th>
+         <th>故障模式</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr>
+         <td class="l">opus</td>
+         <td class="ok">0 / 18</td>
+         <td class="ok">✓ 正常 · 20 turns</td>
+         <td class="ok">✓ 正常 · 64 turns</td>
+         <td class="ok">无</td>
+       </tr>
+       <tr>
+         <td class="l">deepseek</td>
+         <td class="ok">0 / 18</td>
+         <td class="ok">✓ 正常 · 21 turns</td>
+         <td class="ok">✓ 正常 · 65 turns</td>
+         <td class="ok">无</td>
+       </tr>
+       <tr>
+         <td class="l">mimo</td>
+         <td class="ok">0 / 18*</td>
+         <td class="ok">✓ 正常 · ~20 turns</td>
+         <td class="ok">✓ 正常 · ~25 turns</td>
+         <td>Q5 三跑全错（非稳定性故障）</td>
+       </tr>
+       <tr>
+         <td class="l">kimi</td>
+         <td class="warn">2 / 18</td>
+         <td class="ok">✓ 正常 · 19 turns</td>
+         <td class="ok">✓ 正常 · 63 turns</td>
+         <td>1 次推理耗尽（空输出）+ 1 次超时（进程被杀）</td>
+       </tr>
+       <tr class="hl">
+         <td class="l">磐石100</td>
+         <td class="bad">12 / 18</td>
+         <td class="bad">✗ turns=1</td>
+         <td class="bad">✗ turns=1</td>
+         <td>系统性：9 次空输出 + 1 SSL + 1 HTTP 502 + 1 截断 + 2 次 agent 首轮放弃</td>
+       </tr>
+     </tbody>
+   </table></div>
 
   <p class="note"><strong>*</strong> MiMo 在 01 中 Q5 三跑全错、Q2 run3 定点错误、Q6 run2 概率错误，但这些均为答案错误（模型输出正常完成），不属于稳定性故障（空输出 / 超时 / 崩溃）。</p>
 
@@ -908,5 +985,28 @@ footer a{color:var(--primary-light)}
   <a href="benchmark03.html">benchmark03.html</a>
 </footer>
 
+<script>
+(function(){
+  var nav=document.querySelector('nav.top'),mq=window.matchMedia('(max-width:768px)');
+  var lastY=0,tick=false,on=false;
+  function set(){
+    var m=mq.matches;
+    if(m&&!on){nav.style.cssText='position:fixed;top:0;left:0;right:0;z-index:50';on=true}
+    else if(!m&&on){nav.style.cssText='';nav.classList.remove('hidden');on=false}
+  }
+  function scroll(){
+    if(!on||tick)return;
+    requestAnimationFrame(function(){
+      var y=window.scrollY;
+      if(y>lastY&&y>80)nav.classList.add('hidden');
+      else nav.classList.remove('hidden');
+      lastY=y;tick=false;
+    });
+    tick=true;
+  }
+  set();mq.addEventListener('change',set);
+  window.addEventListener('scroll',scroll,{passive:true});
+})();
+</script>
 </body>
 </html>
